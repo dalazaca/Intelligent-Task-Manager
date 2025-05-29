@@ -3,12 +3,12 @@
     "appName": "Gestore Attività",
     "loading": "Caricamento...",
     "error": "Errore:",
-    "goBack": "Torna alla lista",
+    "goBack": "Torna alla Lista",
     "saveChanges": "Salva Modifiche",
     "addTask": "Aggiungi Attività",
     "cancel": "Annulla",
     "confirmDelete": "Sei sicuro di voler eliminare questa attività?",
-    "noDescription": "Nessuna descrizione",
+    "noDescription": "Opzionale",
     "title": "Titolo",
     "description": "Descrizione",
     "dueDate": "Data Scadenza",
@@ -39,7 +39,12 @@
       "pendiente": "In sospeso",
       "enprogreso": "In corso",
       "completada": "Completata"
-    }
+    },
+    "importTasks": "Importa Attività",
+    "importing": "Importazione...",
+    "importErrorFormat": "Formato file non valido. Assicurati che sia un array JSON valido di attività.",
+    "importErrorParsing": "Errore durante l'analisi del file. Assicurati che sia un JSON valido.",
+    "importErrorReading": "Errore durante la lettura del file."
   },
   "taskForm": {
     "editTask": "Modifica Attività",
@@ -63,7 +68,7 @@
     "status": "Stato:",
     "priority": "Priorità:",
     "taskNotFound": "Attività non trovata.",
-    "backToList": "Torna alla lista"
+    "backToList": "Torna alla Lista"
   },
   "taskPriority": {
     "baja": "Bassa",

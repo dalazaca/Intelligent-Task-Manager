@@ -8,15 +8,14 @@
     "addTask": "Añadir Tarea",
     "cancel": "Cancelar",
     "confirmDelete": "¿Estás seguro de que quieres eliminar esta tarea?",
-    "noDescription": "Sin descripción",
+    "noDescription": "Opcional",
     "title": "Título",
     "description": "Descripción",
     "dueDate": "Fecha de Vencimiento",
-    "status": "Estatus"
+    "status": "Estado"
   },
   "taskList": {
-    "filterByStatus": "Filtrar por Estatus:",
-    "filterByPriority": "Filtrar por Prioridad",
+    "filterByStatus": "Filtrar por Estado:",
     "sortBy": "Ordenar por:",
     "ascending": "Ascendente",
     "descending": "Descendente",
@@ -25,19 +24,27 @@
     "inProgress": "En progreso",
     "completed": "Completada",
     "title": "Título",
-    "dueDate": "Fecha",
-    "status": "Estatus",
+    "dueDate": "Fecha de Vencimiento",
+    "status": "Estado",
+    "priority": "Prioridad",
     "actions": "Acciones",
     "viewDetail": "Ver Detalle",
     "edit": "Editar",
     "delete": "Eliminar",
     "noTasks": "No hay tareas para mostrar.",
     "addTask": "Añadir Nueva Tarea",
+    "filterByPriority": "Filtrar por Prioridad:",
+    "loadingTasks": "Cargando tareas...",
     "statusOrder": {
       "pendiente": "Pendiente",
       "enprogreso": "En progreso",
       "completada": "Completada"
-    }
+    },
+    "importTasks": "Importar Tareas",
+    "importing": "Importando...",
+    "importErrorFormat": "Formato de archivo inválido. Asegúrate de que es un JSON de tareas válido.",
+    "importErrorParsing": "Error al procesar el archivo. Asegúrate de que es un JSON válido.",
+    "importErrorReading": "Error al leer el archivo."
   },
   "taskForm": {
     "editTask": "Editar Tarea",
@@ -45,19 +52,21 @@
     "titlePlaceholder": "Título de la tarea",
     "descriptionPlaceholder": "Descripción detallada de la tarea",
     "dueDateLabel": "Fecha de Vencimiento:",
+    "statusLabel": "Estado:",
     "priorityLabel": "Prioridad:",
-    "statusLabel": "Estatus:",
     "idNotFound": "ID de tarea no encontrado para actualizar.",
     "saveChanges": "Guardar Cambios",
     "addTask": "Añadir Tarea",
     "cancel": "Cancelar",
-    "loadingForm": "Cargando...",
-    "errorSaving": "Ocurrió un error al guardar la tarea."
+    "loadingForm": "Guardando...",
+    "errorSaving": "Ocurrió un error al guardar la tarea.",
+    "unexpectedError": "Ocurrió un error inesperado."
   },
   "taskDetail": {
     "noDescription": "Sin descripción",
     "dueDate": "Fecha de Vencimiento:",
-    "status": "Estatus:",
+    "status": "Estado:",
+    "priority": "Prioridad:",
     "taskNotFound": "Tarea no encontrada.",
     "backToList": "Volver a la Lista"
   },

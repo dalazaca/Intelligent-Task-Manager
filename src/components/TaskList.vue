@@ -29,6 +29,26 @@
       <button @click="$emit('addTask')" class="task-list__add-button">
         {{ $t('taskList.addTask') }}
       </button>
+
+      <div class="task-list__import-group">
+        <label
+          for="file-upload"
+          class="task-list__import-button"
+          :class="{ 'task-list__import-button--loading': importLoading }"
+        >
+          <span v-if="importLoading" class="task-list__loader"></span>
+          {{ importLoading ? $t('taskList.importing') : $t('taskList.importTasks') }}
+        </label>
+        <input
+          type="file"
+          id="file-upload"
+          ref="fileInput"
+          @change="handleFileUpload"
+          accept=".json"
+          class="task-list__file-input"
+          :disabled="importLoading"
+        />
+      </div>
     </div>
 
     <table class="task-list__table">
@@ -91,14 +111,16 @@
           </td>
         </tr>
         <tr
-          v-else-if="filteredAndSortedTasks.length === 0"
+          v-else-if="paginatedTasks.length === 0"
           key="no-tasks-message"
           class="task-list__no-tasks"
         >
           <td colspan="5" class="task-list__no-tasks-cell">{{ $t('taskList.noTasks') }}</td>
         </tr>
-        <tr v-for="task in filteredAndSortedTasks" :key="task.id" class="task-list__row">
-          <td class="task-list__cell task-list__cell--title">{{ task.title }}</td>
+        <tr v-for="task in paginatedTasks" :key="task.id" class="task-list__row">
+          <td class="task-list__cell task-list__cell--title task-list__cell--truncate">
+            {{ task.title }}
+          </td>
           <td class="task-list__cell task-list__cell--due-date">{{ task.dueDate }}</td>
           <td class="task-list__cell task-list__cell--priority" :data-priority="task.priority">
             {{ $t(`taskPriority.${task.priority.toLowerCase()}`) }}
@@ -129,24 +151,75 @@
         </tr>
       </TransitionGroup>
     </table>
+
+    <div class="task-list__pagination" v-if="filteredAndSortedTasks.length > 0">
+      <div class="task-list__items-per-page">
+        <label for="items-per-page" class="task-list__label">
+          {{ $t('taskList.itemsPerPage') }}:
+        </label>
+        <select id="items-per-page" v-model.number="itemsPerPage" class="task-list__select">
+          <option v-for="option in itemsPerPageOptions" :key="option" :value="option">
+            {{ option }}
+          </option>
+        </select>
+      </div>
+
+      <div class="task-list__page-controls">
+        <button
+          @click="currentPage--"
+          :disabled="currentPage === 1"
+          class="task-list__pagination-button"
+        >
+          {{ $t('taskList.previous') }}
+        </button>
+        <span class="task-list__page-info">
+          {{ $t('taskList.page') }} {{ currentPage }} {{ $t('taskList.of') }} {{ totalPages }}
+        </span>
+        <button
+          @click="currentPage++"
+          :disabled="currentPage === totalPages"
+          class="task-list__pagination-button"
+        >
+          {{ $t('taskList.next') }}
+        </button>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useTaskStore } from '@/stores/tasks'
 import type { Task, TaskStatus, TaskPriority } from '@/types/task'
 import { useI18n } from 'vue-i18n'
+import { useToast } from '@/composables/useToast'
 
 defineEmits(['editTask', 'addTask'])
 
 const taskStore = useTaskStore()
 const { t } = useI18n()
+const { showErrorToast } = useToast()
 
 const filterStatus = ref<TaskStatus | ''>('')
 const filterPriority = ref<TaskPriority | ''>('')
 const sortBy = ref<keyof Task>('dueDate')
 const sortDirection = ref<'asc' | 'desc'>('asc')
+const fileInput = ref<HTMLInputElement | null>(null)
+const importLoading = ref(false)
+
+// --- Paginación ---
+const currentPage = ref(1)
+const itemsPerPage = ref(5) // Valor por defecto
+const itemsPerPageOptions = [5, 10, 20, 50]
+
+// Watcher para resetear la página actual cuando los filtros/ordenamiento cambian
+watch([filterStatus, filterPriority, sortBy, sortDirection], () => {
+  currentPage.value = 1
+})
+// Watcher para resetear la página actual cuando el número de elementos por página cambia
+watch(itemsPerPage, () => {
+  currentPage.value = 1
+})
 
 const priorityOrder: Record<TaskPriority, number> = {
   Urgente: 1,
@@ -166,21 +239,17 @@ const setSortBy = (field: keyof Task) => {
 
 const filteredTasks = computed(() => {
   let tasksToFilter = taskStore.allTasks
-
   if (filterStatus.value) {
     tasksToFilter = tasksToFilter.filter((task) => task.status === filterStatus.value)
   }
-
   if (filterPriority.value) {
     tasksToFilter = tasksToFilter.filter((task) => task.priority === filterPriority.value)
   }
-
   return tasksToFilter
 })
 
 const filteredAndSortedTasks = computed(() => {
   const tasksToSort = [...filteredTasks.value]
-
   return tasksToSort.sort((a, b) => {
     let result = 0
     if (sortBy.value === 'dueDate') {
@@ -197,10 +266,74 @@ const filteredAndSortedTasks = computed(() => {
     } else if (sortBy.value === 'title') {
       result = a.title.localeCompare(b.title)
     }
-
     return sortDirection.value === 'asc' ? result : -result
   })
 })
+
+// NUEVO: Tareas paginadas
+const paginatedTasks = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value
+  const end = start + itemsPerPage.value
+  return filteredAndSortedTasks.value.slice(start, end)
+})
+
+// NUEVO: Calcular el número total de páginas
+const totalPages = computed(() => {
+  return Math.ceil(filteredAndSortedTasks.value.length / itemsPerPage.value)
+})
+
+const handleFileUpload = async (event: Event) => {
+  const target = event.target as HTMLInputElement
+  const files = target.files
+  if (!files || files.length === 0) {
+    return
+  }
+
+  const file = files[0]
+  const reader = new FileReader()
+
+  reader.onloadstart = () => {
+    importLoading.value = true
+  }
+
+  reader.onload = async (e) => {
+    try {
+      const content = e.target?.result as string
+      const parsedTasks: Omit<Task, 'id'>[] = JSON.parse(content)
+
+      if (
+        !Array.isArray(parsedTasks) ||
+        !parsedTasks.every(
+          (task) =>
+            typeof task.title === 'string' &&
+            typeof task.dueDate === 'string' &&
+            ['Baja', 'Media', 'Alta', 'Urgente'].includes(task.priority as TaskPriority) &&
+            ['Pendiente', 'En progreso', 'Completada'].includes(task.status as TaskStatus),
+        )
+      ) {
+        showErrorToast(t('taskList.importErrorFormat'))
+        return
+      }
+
+      await taskStore.importTasksFromFile(parsedTasks)
+    } catch (parseError) {
+      console.error('Error parsing JSON file:', parseError)
+      showErrorToast(t('taskList.importErrorParsing'))
+    } finally {
+      importLoading.value = false
+      if (fileInput.value) {
+        fileInput.value.value = ''
+      }
+    }
+  }
+
+  reader.onerror = () => {
+    importLoading.value = false
+    showErrorToast(t('taskList.importErrorReading'))
+  }
+
+  reader.readAsText(file)
+}
 
 const confirmDelete = (id: string) => {
   if (confirm(t('global.confirmDelete'))) {
@@ -280,6 +413,49 @@ const confirmDelete = (id: string) => {
     align-self: flex-end;
     height: 38px;
     box-sizing: border-box;
+  }
+
+  &__import-group {
+    position: relative;
+    display: inline-block;
+    align-self: flex-end;
+    height: 38px;
+  }
+
+  &__import-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 20px;
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+    height: 100%;
+    box-sizing: border-box;
+
+    &:hover {
+      background-color: #5a6268;
+    }
+
+    &--loading {
+      background-color: #888;
+      cursor: not-allowed;
+    }
+  }
+
+  &__file-input {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
   }
 
   &__message {
@@ -393,6 +569,13 @@ const confirmDelete = (id: string) => {
     }
   }
 
+  &__cell--truncate {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 250px;
+  }
+
   &__cell {
     &--status {
       &[data-status='Pendiente'] {
@@ -457,6 +640,56 @@ const confirmDelete = (id: string) => {
     &-cell {
       padding: 20px;
     }
+  }
+
+  &__pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+    padding: 10px 0;
+    border-top: 1px solid #eee;
+    flex-wrap: wrap;
+    gap: 15px;
+  }
+
+  &__items-per-page {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  &__page-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  &__pagination-button {
+    padding: 8px 15px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+
+    &:disabled {
+      background-color: #a0a0a0;
+      cursor: not-allowed;
+    }
+
+    &:hover:not(:disabled) {
+      background-color: #0056b3;
+    }
+  }
+
+  &__page-info {
+    font-weight: bold;
+    color: #555;
+    white-space: nowrap;
   }
 }
 

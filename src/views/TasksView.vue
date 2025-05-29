@@ -62,7 +62,7 @@ const handleCancelEdit = () => {
   &__form,
   &__list {
     width: 100%;
-    max-width: 900px;
+    max-width: 1000px;
   }
 }
 </style>

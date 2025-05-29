@@ -39,7 +39,12 @@
       "pendiente": "Pending",
       "enprogreso": "In progress",
       "completada": "Completed"
-    }
+    },
+    "importTasks": "Import Tasks",
+    "importing": "Importing...",
+    "importErrorFormat": "Invalid file format. Ensure it's a valid JSON array of tasks.",
+    "importErrorParsing": "Error parsing file. Ensure it's valid JSON.",
+    "importErrorReading": "Error reading file."
   },
   "taskForm": {
     "editTask": "Edit Task",
