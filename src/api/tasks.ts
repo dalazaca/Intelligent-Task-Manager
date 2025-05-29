@@ -71,11 +71,11 @@ export async function createTask(newTask: Omit<Task, 'id'>): Promise<ApiResponse
 }
 
 /**
- * @function updateTask
+ * @function changeTask
  * @description Simula la actualización de una tarea existente en el servidor.
  * Puede fallar un 10% de las veces.
  */
-export async function updateTask(updatedTask: Task): Promise<ApiResponse<Task>> {
+export async function changeTask(updatedTask: Task): Promise<ApiResponse<Task>> {
   await simulateNetworkDelay()
 
   if (Math.random() < 0.1) {
@@ -102,11 +102,11 @@ export async function updateTask(updatedTask: Task): Promise<ApiResponse<Task>> 
 }
 
 /**
- * @function deleteTask
+ * @function removeTask
  * @description Simula la eliminación de una tarea en el servidor.
  * Puede fallar un 5% de las veces.
  */
-export async function deleteTask(id: string): Promise<ApiResponse<string>> {
+export async function removeTask(id: string): Promise<ApiResponse<string>> {
   await simulateNetworkDelay()
 
   if (Math.random() < 0.05) {

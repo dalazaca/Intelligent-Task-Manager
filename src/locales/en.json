@@ -1,0 +1,62 @@
+{
+  "global": {
+    "appName": "Task Manager",
+    "loading": "Loading...",
+    "error": "Error:",
+    "goBack": "Go back to List",
+    "saveChanges": "Save Changes",
+    "addTask": "Add Task",
+    "cancel": "Cancel",
+    "confirmDelete": "Are you sure you want to delete this task?",
+    "noDescription": "No description",
+    "title": "Title",
+    "description": "Description",
+    "dueDate": "Due Date",
+    "status": "Status"
+  },
+  "taskList": {
+    "filterByStatus": "Filter by Status:",
+    "sortBy": "Sort by:",
+    "ascending": "Ascending",
+    "descending": "Descending",
+    "all": "All",
+    "pending": "Pending",
+    "inProgress": "In progress",
+    "completed": "Completed",
+    "title": "Title",
+    "dueDate": "Due Date",
+    "status": "Status",
+    "actions": "Actions",
+    "viewDetail": "View Detail",
+    "edit": "Edit",
+    "delete": "Delete",
+    "noTasks": "No tasks to display.",
+    "addTask": "Add New Task",
+    "statusOrder": {
+      "pendiente": "Pending",
+      "enprogreso": "In progress",
+      "completada": "Completed"
+    }
+  },
+  "taskForm": {
+    "editTask": "Edit Task",
+    "addNewTask": "Add New Task",
+    "titlePlaceholder": "Task title",
+    "descriptionPlaceholder": "Detailed task description",
+    "dueDateLabel": "Due Date:",
+    "statusLabel": "Status:",
+    "idNotFound": "Task ID not found for update.",
+    "saveChanges": "Save Changes",
+    "addTask": "Add Task",
+    "cancel": "Cancel",
+    "loadingForm": "Loading...",
+    "errorSaving": "An error occurred while saving the task."
+  },
+  "taskDetail": {
+    "noDescription": "No description",
+    "dueDate": "Due Date:",
+    "status": "Status:",
+    "taskNotFound": "Task not found.",
+    "backToList": "Back to List"
+  }
+}

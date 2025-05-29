@@ -1,0 +1,62 @@
+{
+  "global": {
+    "appName": "Gestor de Tareas",
+    "loading": "Cargando...",
+    "error": "Error:",
+    "goBack": "Volver a la Lista",
+    "saveChanges": "Guardar Cambios",
+    "addTask": "Añadir Tarea",
+    "cancel": "Cancelar",
+    "confirmDelete": "¿Estás seguro de que quieres eliminar esta tarea?",
+    "noDescription": "Sin descripción",
+    "title": "Título",
+    "description": "Descripción",
+    "dueDate": "Fecha de Vencimiento",
+    "status": "Estatus"
+  },
+  "taskList": {
+    "filterByStatus": "Filtrar por Estatus:",
+    "sortBy": "Ordenar por:",
+    "ascending": "Ascendente",
+    "descending": "Descendente",
+    "all": "Todos",
+    "pending": "Pendiente",
+    "inProgress": "En progreso",
+    "completed": "Completada",
+    "title": "Título",
+    "dueDate": "Fecha",
+    "status": "Estatus",
+    "actions": "Acciones",
+    "viewDetail": "Ver Detalle",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "noTasks": "No hay tareas para mostrar.",
+    "addTask": "Añadir Nueva Tarea",
+    "statusOrder": {
+      "pendiente": "Pendiente",
+      "enprogreso": "En progreso",
+      "completada": "Completada"
+    }
+  },
+  "taskForm": {
+    "editTask": "Editar Tarea",
+    "addNewTask": "Añadir Nueva Tarea",
+    "titlePlaceholder": "Título de la tarea",
+    "descriptionPlaceholder": "Descripción detallada de la tarea",
+    "dueDateLabel": "Fecha de Vencimiento:",
+    "statusLabel": "Estatus:",
+    "idNotFound": "ID de tarea no encontrado para actualizar.",
+    "saveChanges": "Guardar Cambios",
+    "addTask": "Añadir Tarea",
+    "cancel": "Cancelar",
+    "loadingForm": "Cargando...",
+    "errorSaving": "Ocurrió un error al guardar la tarea."
+  },
+  "taskDetail": {
+    "noDescription": "Sin descripción",
+    "dueDate": "Fecha de Vencimiento:",
+    "status": "Estatus:",
+    "taskNotFound": "Tarea no encontrada.",
+    "backToList": "Volver a la Lista"
+  }
+}

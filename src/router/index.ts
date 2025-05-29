@@ -12,17 +12,13 @@ const router = createRouter({
       component: TasksView,
     },
     {
-      path: '/task/:id', // Ruta dinámica para el ID de la tarea
+      path: '/task/:id',
       name: 'task-detail',
       component: TaskDetailView,
-      // Props: true si quieres pasar los parámetros de la ruta como props al componente
-      // Sin embargo, para Composition API y <script setup>, es más común acceder a route.params directamente.
-      // props: true, // Puedes habilitarlo si prefieres pasar props
     },
-    // Opcional: Ruta 404
     {
       path: '/:catchAll(.*)',
-      redirect: '/', // Redirecciona a la vista de tareas si la ruta no existe
+      redirect: '/',
     },
   ],
 })

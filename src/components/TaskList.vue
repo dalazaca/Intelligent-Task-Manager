@@ -1,20 +1,5 @@
 <template>
   <div class="task-list">
-    <div v-if="taskStore.loading" class="task-list__message task-list__message--loading">
-      Cargando tareas...
-    </div>
-    <div v-if="taskStore.error" class="task-list__message task-list__message--error">
-      Error: {{ taskStore.error }}
-    </div>
-    <div class="task-list__language-switcher">
-      <button @click="changeLanguage('es')" :class="{ active: $i18n.locale === 'es' }">
-        Español
-      </button>
-      <button @click="changeLanguage('en')" :class="{ active: $i18n.locale === 'en' }">
-        English
-      </button>
-    </div>
-
     <div class="task-list__controls">
       <div class="task-list__filter-group">
         <label for="status-filter" class="task-list__label">{{
@@ -28,38 +13,58 @@
         </select>
       </div>
 
-      <div class="task-list__filter-group">
-        <label for="sort-by" class="task-list__label">{{ $t('taskList.sortBy') }}</label>
-        <select id="sort-by" v-model="sortBy" class="task-list__select">
-          <option value="dueDate">{{ $t('taskList.dueDate') }}</option>
-          <option value="status">{{ $t('taskList.status') }}</option>
-          <option value="title">{{ $t('taskList.title') }}</option>
-        </select>
-        <button @click="toggleSortDirection" class="task-list__sort-button">
-          {{ sortDirection === 'asc' ? $t('taskList.ascending') : $t('taskList.descending') }}
-        </button>
-      </div>
+      <button @click="$emit('addTask')" class="task-list__add-button">
+        {{ $t('taskList.addTask') }}
+      </button>
     </div>
 
     <table class="task-list__table">
       <thead class="task-list__header">
         <tr class="task-list__header-row">
-          <th class="task-list__header-cell task-list__header-cell--title">
+          <th
+            class="task-list__header-cell task-list__header-cell--sortable"
+            @click="setSortBy('title')"
+          >
             {{ $t('taskList.title') }}
+            <span class="task-list__sort-icon">
+              <span v-if="sortBy === 'title'">
+                {{ sortDirection === 'asc' ? '▲' : '▼' }}
+              </span>
+            </span>
           </th>
-          <th class="task-list__header-cell task-list__header-cell--due-date">
+          <th
+            class="task-list__header-cell task-list__header-cell--sortable"
+            @click="setSortBy('dueDate')"
+          >
             {{ $t('taskList.dueDate') }}
+            <span class="task-list__sort-icon">
+              <span v-if="sortBy === 'dueDate'">
+                {{ sortDirection === 'asc' ? '▲' : '▼' }}
+              </span>
+            </span>
           </th>
-          <th class="task-list__header-cell task-list__header-cell--status">
+          <th
+            class="task-list__header-cell task-list__header-cell--sortable"
+            @click="setSortBy('status')"
+          >
             {{ $t('taskList.status') }}
+            <span class="task-list__sort-icon">
+              <span v-if="sortBy === 'status'">
+                {{ sortDirection === 'asc' ? '▲' : '▼' }}
+              </span>
+            </span>
           </th>
-          <th class="task-list__header-cell task-list__header-cell--actions">
+          <th class="task-list__header-cell list__header-cell--actions">
             {{ $t('taskList.actions') }}
           </th>
         </tr>
       </thead>
-      <tbody class="task-list__body">
-        <tr v-if="filteredAndSortedTasks.length === 0" class="task-list__no-tasks">
+      <TransitionGroup name="task-list-item" tag="tbody" class="task-list__body">
+        <tr
+          v-if="filteredAndSortedTasks.length === 0 && !taskStore.loading"
+          key="no-tasks-message"
+          class="task-list__no-tasks"
+        >
           <td colspan="4" class="task-list__no-tasks-cell">{{ $t('taskList.noTasks') }}</td>
         </tr>
         <tr v-for="task in filteredAndSortedTasks" :key="task.id" class="task-list__row">
@@ -89,7 +94,7 @@
             </button>
           </td>
         </tr>
-      </tbody>
+      </TransitionGroup>
     </table>
   </div>
 </template>
@@ -98,26 +103,26 @@
 import { ref, computed } from 'vue'
 import { useTaskStore } from '@/stores/tasks'
 import type { Task, TaskStatus } from '@/types/task'
-import { useI18n } from 'vue-i18n' // Importa useI18n
+import { useI18n } from 'vue-i18n'
 
-defineEmits(['editTask'])
+defineEmits(['editTask', 'addTask'])
 
 const taskStore = useTaskStore()
-const { t, locale } = useI18n() // Obtén la función de traducción y la locale actual
+const { t } = useI18n()
 
-// Estado para el filtrado
 const filterStatus = ref<TaskStatus | ''>('')
-
-// Estado para el ordenamiento
 const sortBy = ref<keyof Task>('dueDate')
 const sortDirection = ref<'asc' | 'desc'>('asc')
 
-// Función para cambiar el idioma
-const changeLanguage = (lang: string) => {
-  locale.value = lang
+const setSortBy = (field: keyof Task) => {
+  if (sortBy.value === field) {
+    sortDirection.value = sortDirection.value === 'asc' ? 'desc' : 'asc'
+  } else {
+    sortBy.value = field
+    sortDirection.value = 'asc'
+  }
 }
 
-// Computed property para filtrar tareas
 const filteredTasks = computed(() => {
   if (!filterStatus.value) {
     return taskStore.allTasks
@@ -125,7 +130,6 @@ const filteredTasks = computed(() => {
   return taskStore.allTasks.filter((task) => task.status === filterStatus.value)
 })
 
-// Computed property para ordenar y luego filtrar
 const filteredAndSortedTasks = computed(() => {
   const tasksToSort = [...filteredTasks.value]
 
@@ -134,9 +138,6 @@ const filteredAndSortedTasks = computed(() => {
     if (sortBy.value === 'dueDate') {
       result = new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
     } else if (sortBy.value === 'status') {
-      // Es crucial que los estatus en el objeto `statusOrder` coincidan con los valores literales
-      // de `TaskStatus` y con las claves de traducción si se usan en el template.
-      // Aquí usamos los valores literales para la lógica de ordenamiento.
       const statusOrder: Record<TaskStatus, number> = {
         Pendiente: 1,
         'En progreso': 2,
@@ -151,16 +152,10 @@ const filteredAndSortedTasks = computed(() => {
   })
 })
 
-// Función para cambiar la dirección del ordenamiento
-const toggleSortDirection = () => {
-  sortDirection.value = sortDirection.value === 'asc' ? 'desc' : 'asc'
-}
-
-// Función para confirmar y eliminar tarea
 const confirmDelete = (id: string) => {
-  // Usamos $t para traducir el mensaje de confirmación
-  if (confirm(t('taskList.confirmDelete'))) {
+  if (confirm(t('global.confirmDelete'))) {
     taskStore.deleteTask(id)
+    // El store ya emitirá el toast de éxito/error.
   }
 }
 </script>
@@ -172,47 +167,22 @@ const confirmDelete = (id: string) => {
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   max-width: 900px;
+  width: 100%;
   margin: 20px auto;
-
-  &__language-switcher {
-    display: flex;
-    justify-content: flex-end;
-    margin-bottom: 15px;
-    gap: 10px;
-
-    button {
-      padding: 8px 15px;
-      border: 1px solid #007bff;
-      border-radius: 5px;
-      background-color: transparent;
-      color: #007bff;
-      cursor: pointer;
-      transition: all 0.3s ease;
-
-      &.active {
-        background-color: #007bff;
-        color: white;
-        font-weight: bold;
-      }
-
-      &:hover:not(.active) {
-        background-color: #e6f2ff;
-      }
-    }
-  }
 
   &__controls {
     display: flex;
-    gap: 20px;
+    align-items: flex-end;
     margin-bottom: 20px;
     flex-wrap: wrap;
-    align-items: flex-end;
+    gap: 20px;
   }
 
   &__filter-group {
     display: flex;
     flex-direction: column;
     gap: 5px;
+    flex-grow: 1;
   }
 
   &__label {
@@ -227,22 +197,58 @@ const confirmDelete = (id: string) => {
     border: 1px solid #ccc;
     border-radius: 4px;
     font-size: 1rem;
-    min-width: 150px;
+    width: 100%;
+    appearance: none;
+    background-color: #fff;
+    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23666%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13%205.4l-117.4%20117.4-117.4-117.4a17.6%2017.6%200%200%200-25%200%2017.6%2017.6%200%200%200%200%2025l129.9%20129.9a17.6%2017.6%200%200%200%2025%200l129.9-129.9a17.6%2017.6%200%200%000-25z%22%2F%3E%3C%2Fsvg%3E');
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 10px;
+    padding-right: 30px;
+    cursor: pointer;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+    transition:
+      border-color 0.2s ease,
+      box-shadow 0.2s ease;
+
+    &:focus {
+      outline: none;
+      border-color: #007bff;
+      box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+    }
   }
 
-  &__sort-button {
-    padding: 8px 15px;
+  &__add-button {
+    padding: 10px 20px;
     background-color: #007bff;
     color: white;
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
     cursor: pointer;
-    font-size: 0.9rem;
-    transition: background-color 0.2s ease-in-out;
-    margin-left: 10px;
+    font-size: 1rem;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+    align-self: flex-end;
+    height: 38px;
+    box-sizing: border-box;
+  }
 
-    &:hover {
-      background-color: #0056b3;
+  &__message {
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+    font-weight: bold;
+    text-align: center;
+
+    &--loading {
+      background-color: #e7f3ff;
+      color: #007bff;
+    }
+
+    &--error {
+      background-color: #f8d7da;
+      color: #dc3545;
+      border: 1px solid #f5c6cb;
     }
   }
 
@@ -250,23 +256,64 @@ const confirmDelete = (id: string) => {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-spacing: 0;
+    padding: 0;
   }
 
   &__header {
     background-color: #e2e6ea;
   }
 
-  &__header-row {
-    border-bottom: 2px solid #ccc;
+  &__header-cell,
+  &__cell {
+    padding: 10px 15px;
+    text-align: left;
+    vertical-align: middle;
+    color: #555;
+    white-space: nowrap;
+    box-sizing: border-box;
+
+    &--title {
+      min-width: 150px;
+    }
+    &--due-date {
+      min-width: 120px;
+    }
+    &--status {
+      min-width: 120px;
+    }
+    &--actions {
+      min-width: 200px;
+      text-align: center;
+    }
   }
 
   &__header-cell {
-    padding: 12px 15px;
-    text-align: left;
     font-weight: bold;
     color: #333;
     text-transform: uppercase;
     font-size: 0.9rem;
+
+    &--sortable {
+      cursor: pointer;
+      user-select: none;
+      position: relative;
+
+      &:hover {
+        background-color: #d1d8e0;
+      }
+    }
+  }
+
+  &__sort-icon {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.7rem;
+    color: #666;
   }
 
   &__row {
@@ -282,10 +329,6 @@ const confirmDelete = (id: string) => {
   }
 
   &__cell {
-    padding: 10px 15px;
-    vertical-align: middle;
-    color: #555;
-
     &--status {
       &[data-status='Pendiente'] {
         color: orange;
@@ -350,5 +393,27 @@ const confirmDelete = (id: string) => {
       padding: 20px;
     }
   }
+}
+
+/* --- Animaciones para TransitionGroup --- */
+
+.task-list-item-enter-active,
+.task-list-item-leave-active {
+  transition: all 0.5s ease;
+}
+
+.task-list-item-enter-from,
+.task-list-item-leave-to {
+  opacity: 0;
+  transform: translateX(30px);
+}
+
+.task-list-item-leave-active {
+  position: absolute;
+  width: 100%;
+}
+
+.task-list-item-move {
+  transition: transform 0.5s ease;
 }
 </style>

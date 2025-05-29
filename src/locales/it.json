@@ -1,0 +1,62 @@
+{
+  "global": {
+    "appName": "Gestore Compiti",
+    "loading": "Caricamento...",
+    "error": "Errore:",
+    "goBack": "Torna all'Elenco",
+    "saveChanges": "Salva Modifiche",
+    "addTask": "Aggiungi Compito",
+    "cancel": "Annulla",
+    "confirmDelete": "Sei sicuro di voler eliminare questo compito?",
+    "noDescription": "Nessuna descrizione",
+    "title": "Titolo",
+    "description": "Descrizione",
+    "dueDate": "Data di Scadenza",
+    "status": "Stato"
+  },
+  "taskList": {
+    "filterByStatus": "Filtra per Stato:",
+    "sortBy": "Ordina per:",
+    "ascending": "Crescente",
+    "descending": "Decrescente",
+    "all": "Tutti",
+    "pending": "In Sospeso",
+    "inProgress": "In Corso",
+    "completed": "Completato",
+    "title": "Titolo",
+    "dueDate": "Data Scadenza",
+    "status": "Stato",
+    "actions": "Azioni",
+    "viewDetail": "Vedi Dettagli",
+    "edit": "Modifica",
+    "delete": "Elimina",
+    "noTasks": "Nessun compito da visualizzare.",
+    "addTask": "Aggiungi Nuovo Compito",
+    "statusOrder": {
+      "pendiente": "In Sospeso",
+      "enprogreso": "In Corso",
+      "completada": "Completato"
+    }
+  },
+  "taskForm": {
+    "editTask": "Modifica Compito",
+    "addNewTask": "Aggiungi Nuovo Compito",
+    "titlePlaceholder": "Titolo del compito",
+    "descriptionPlaceholder": "Descrizione dettagliata del compito",
+    "dueDateLabel": "Data di Scadenza:",
+    "statusLabel": "Stato:",
+    "idNotFound": "ID compito non trovato per l'aggiornamento.",
+    "saveChanges": "Salva Modifiche",
+    "addTask": "Aggiungi Compito",
+    "cancel": "Annulla",
+    "loadingForm": "Caricamento...",
+    "errorSaving": "Si è verificato un errore durante il salvataggio del compito."
+  },
+  "taskDetail": {
+    "noDescription": "Nessuna descrizione",
+    "dueDate": "Data di Scadenza:",
+    "status": "Stato:",
+    "taskNotFound": "Compito non trovato.",
+    "backToList": "Torna all'Elenco"
+  }
+}
