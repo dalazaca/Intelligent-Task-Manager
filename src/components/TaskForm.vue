@@ -118,7 +118,7 @@ const task = ref<Partial<Task>>({
   title: '',
   dueDate: '',
   status: 'Pendiente',
-  priority: 'Media', // Valor por defecto para la nueva prioridad
+  priority: 'Media',
   description: '',
 })
 
@@ -131,6 +131,7 @@ const initializeForm = () => {
     isEditing.value = true
   } else {
     isEditing.value = false
+    resetForm()
   }
 }
 
@@ -151,7 +152,7 @@ const resetForm = () => {
     title: '',
     dueDate: '',
     status: 'Pendiente',
-    priority: 'Media', // Reiniciar también la prioridad a un valor por defecto
+    priority: 'Media',
     description: '',
   }
 }
@@ -196,10 +197,10 @@ const cancelEdit = () => {
   padding: 30px;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  max-width: 500px; /* Ancho máximo en pantallas grandes */
-  width: 100%; /* Ocupa el 100% del espacio disponible hasta el max-width */
-  margin: 20px auto; /* Centrado horizontal y espacio vertical */
-  box-sizing: border-box; /* Asegura que padding y border no aumenten el tamaño total */
+  max-width: 500px;
+  width: 100%;
+  margin: 20px auto;
+  box-sizing: border-box;
 
   &__title {
     text-align: center;
@@ -213,7 +214,7 @@ const cancelEdit = () => {
   &__form {
     display: flex;
     flex-direction: column;
-    gap: 20px; /* Espacio entre los grupos de formulario */
+    gap: 20px;
   }
 
   &__group {
@@ -235,7 +236,7 @@ const cancelEdit = () => {
     border: 1px solid #ddd;
     border-radius: 6px;
     font-size: 1rem;
-    width: 100%; /* Ocupa el 100% del ancho de su contenedor */
+    width: 100%;
     box-sizing: border-box;
     transition:
       border-color 0.2s ease-in-out,
@@ -254,22 +255,23 @@ const cancelEdit = () => {
   }
 
   &__textarea {
-    resize: vertical; /* Permite redimensionar verticalmente */
+    resize: vertical;
     min-height: 80px;
   }
 
   &__select {
-    appearance: none; /* Elimina el estilo por defecto del select en algunos navegadores */
+    appearance: none;
+    background-color: transparent;
     background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23666%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13%205.4l-117.4%20117.4-117.4-117.4a17.6%2017.6%200%200%200-25%200%2017.6%2017.6%200%200%200%200%2025l129.9%20129.9a17.6%2017.6%200%200%200%2025%200l129.9-129.9a17.6%2017.6%200%200%000-25z%22%2F%3E%3C%2Fsvg%3E');
     background-repeat: no-repeat;
     background-position: right 12px center;
     background-size: 12px;
-    padding-right: 35px; /* Espacio para el icono de la flecha */
+    padding-right: 35px;
   }
 
   &__actions {
     display: flex;
-    justify-content: flex-end; /* Alinea los botones a la derecha */
+    justify-content: flex-end;
     gap: 15px;
     margin-top: 20px;
   }
@@ -285,7 +287,7 @@ const cancelEdit = () => {
       background-color 0.3s ease,
       transform 0.1s ease;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    display: flex; /* Para centrar el loader y el texto */
+    display: flex;
     align-items: center;
     justify-content: center;
 
@@ -328,8 +330,8 @@ const cancelEdit = () => {
     border-radius: 50%;
     width: 16px;
     height: 16px;
-    animation: spin 1s linear infinite; /* Animación de spinner */
-    margin-right: 8px; /* Espacio entre el loader y el texto */
+    animation: spin 1s linear infinite;
+    margin-right: 8px;
   }
 }
 

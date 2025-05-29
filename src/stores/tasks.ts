@@ -1,12 +1,10 @@
-// src/stores/tasks.ts
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { Task, TaskStatus, TaskPriority } from '@/types/task' // Importa TaskPriority
+import type { Task } from '@/types/task'
 import { fetchTasks, createTask, changeTask, removeTask } from '@/api/tasks'
 import { useToast } from '@/composables/useToast'
 
 export const useTaskStore = defineStore('tasks', () => {
-  // 1. STATE (Estado Reactivo)
   const tasks = ref<Task[]>([])
   const currentEditingTask = ref<Task | null>(null)
   const loading = ref(false)
@@ -14,17 +12,13 @@ export const useTaskStore = defineStore('tasks', () => {
 
   const { showErrorToast, showSuccessToast } = useToast()
 
-  // 2. GETTERS (Propiedades Calculadas)
   const allTasks = computed(() => tasks.value)
 
   const getTaskById = computed(() => (id: string) => {
     return tasks.value.find((task) => task.id === id)
   })
 
-  // 3. ACTIONS (Funciones que modifican el estado o realizan operaciones asíncronas)
-
   const loadTasks = async () => {
-    /* ... (Sin cambios funcionales, ya maneja Task con priority) ... */
     loading.value = true
     error.value = null
     try {
@@ -46,7 +40,6 @@ export const useTaskStore = defineStore('tasks', () => {
   }
 
   const addTask = async (newTask: Omit<Task, 'id'>) => {
-    /* ... (Sin cambios funcionales) ... */
     loading.value = true
     error.value = null
     try {
@@ -69,7 +62,6 @@ export const useTaskStore = defineStore('tasks', () => {
   }
 
   const updateTask = async (updatedTask: Task) => {
-    /* ... (Sin cambios funcionales) ... */
     loading.value = true
     error.value = null
     try {
@@ -95,7 +87,6 @@ export const useTaskStore = defineStore('tasks', () => {
   }
 
   const deleteTask = async (id: string) => {
-    /* ... (Sin cambios funcionales) ... */
     loading.value = true
     error.value = null
     try {

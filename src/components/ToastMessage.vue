@@ -27,37 +27,35 @@
 </template>
 
 <script setup lang="ts">
-import { useToast } from '@/composables/useToast' // Importamos el composable
-// Mantenemos la exportación de tipos para que otros archivos puedan importarlos si es necesario.
+import { useToast } from '@/composables/useToast'
+
 export type ToastType = 'success' | 'error' | 'info' | 'warning'
 
 export interface Toast {
   id: string
   message: string
   type: ToastType
-  duration?: number // Duración en ms, 0 para no auto-descartar
-  dismissible?: boolean // Si se puede cerrar manualmente
-  timeoutId?: ReturnType<typeof setTimeout> // Para almacenar el ID del temporizador
+  duration?: number
+  dismissible?: boolean
+  timeoutId?: ReturnType<typeof setTimeout>
 }
 
-// Desestructuramos `toasts` y `dismissToast` directamente del composable.
-// El componente ToastMessage ahora solo "lee" la cola de toasts y activa el descarte.
 const { toasts, dismissToast } = useToast()
 </script>
 
 <style lang="scss" scoped>
 .toast-container {
   position: fixed;
-  top: 20px; /* Posición desde arriba */
-  left: 50%; /* Centrado horizontal */
+  top: 20px;
+  left: 50%;
   transform: translateX(-50%);
-  z-index: 9999; /* Asegura que esté por encima de todo */
+  z-index: 9999;
   display: flex;
   flex-direction: column;
-  gap: 10px; /* Espacio entre múltiples toasts */
-  max-width: 400px; /* Ancho máximo para los toasts */
-  width: 90%; /* Ancho responsivo */
-  pointer-events: none; /* Permite clicks a través del contenedor si no hay toast */
+  gap: 10px;
+  max-width: 400px;
+  width: 90%;
+  pointer-events: none;
 }
 
 .toast-message {
@@ -68,14 +66,14 @@ const { toasts, dismissToast } = useToast()
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   color: white;
   font-weight: bold;
-  pointer-events: all; /* Permite interacción con el toast (ej. botón de cerrar) */
-  background-color: #333; /* Color por defecto */
-  border: 1px solid transparent; /* Borde por defecto */
+  pointer-events: all;
+  background-color: #333;
+  border: 1px solid transparent;
 
   &__icon {
     margin-right: 12px;
     font-size: 1.2rem;
-    line-height: 1; /* Asegura que el icono no añada espacio extra */
+    line-height: 1;
   }
 
   &__content {
@@ -86,7 +84,7 @@ const { toasts, dismissToast } = useToast()
   }
 
   &__text {
-    margin: 0; /* Elimina márgenes de párrafo */
+    margin: 0;
     flex-grow: 1;
   }
 
@@ -98,7 +96,7 @@ const { toasts, dismissToast } = useToast()
     cursor: pointer;
     margin-left: 15px;
     line-height: 1;
-    padding: 0; /* Elimina padding por defecto del botón */
+    padding: 0;
     transition: transform 0.2s ease;
 
     &:hover {
@@ -106,27 +104,25 @@ const { toasts, dismissToast } = useToast()
     }
   }
 
-  /* Tipos de Toast */
   &--success {
-    background-color: #4caf50; /* Verde */
+    background-color: #4caf50;
     border-color: #388e3c;
   }
   &--error {
-    background-color: #f44336; /* Rojo */
+    background-color: #f44336;
     border-color: #d32f2f;
   }
   &--info {
-    background-color: #2196f3; /* Azul */
+    background-color: #2196f3;
     border-color: #1976d2;
   }
   &--warning {
-    background-color: #ffc107; /* Amarillo */
+    background-color: #ffc107;
     border-color: #ffa000;
-    color: #333; /* Texto oscuro para contraste */
+    color: #333;
   }
 }
 
-/* Animaciones para la TransitionGroup */
 .toast-enter-active,
 .toast-leave-active {
   transition: all 0.5s ease;
@@ -134,7 +130,7 @@ const { toasts, dismissToast } = useToast()
 .toast-enter-from,
 .toast-leave-to {
   opacity: 0;
-  transform: translateY(-30px); /* Entra/sale desde arriba */
+  transform: translateY(-30px);
 }
 .toast-move {
   transition: transform 0.5s ease;

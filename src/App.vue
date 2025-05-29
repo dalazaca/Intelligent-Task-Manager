@@ -219,7 +219,6 @@ body {
   }
 }
 
-/* Estilos para router-view para que el contenido se centre */
 .router-view-container {
   flex-grow: 1;
   display: flex;

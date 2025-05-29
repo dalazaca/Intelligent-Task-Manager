@@ -148,7 +148,6 @@ const goBack = () => {
   &__value {
     color: #555;
 
-    // Estilos de estado existentes
     &[data-status='Pendiente'] {
       color: #f0ad4e;
       font-weight: bold;

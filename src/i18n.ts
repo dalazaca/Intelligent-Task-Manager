@@ -1,4 +1,3 @@
-// src/i18n.ts
 import { createI18n } from 'vue-i18n'
 
 // Importa tus archivos de traducción JSON
@@ -8,8 +7,8 @@ import itMessages from '@/locales/it.json'
 
 // Define los idiomas disponibles, sus nombres completos y la ruta a su bandera
 export const availableLocales = [
-  { code: 'es', name: 'Español', flag: '/flags/es.svg' }, // Ruta relativa a la carpeta public
-  { code: 'en', name: 'English', flag: '/flags/us.svg' }, // Usamos la bandera de EE. UU. para inglés
+  { code: 'es', name: 'Español', flag: '/flags/es.svg' },
+  { code: 'en', name: 'English', flag: '/flags/us.svg' },
   { code: 'it', name: 'Italiano', flag: '/flags/it.svg' },
 ]
 

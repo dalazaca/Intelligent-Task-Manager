@@ -19,10 +19,10 @@
         }}</label>
         <select id="priority-filter" v-model="filterPriority" class="task-list__select">
           <option value="">{{ $t('taskList.all') }}</option>
-          <option value="Baja">{{ $t('taskPriority.low') }}</option>
-          <option value="Media">{{ $t('taskPriority.medium') }}</option>
-          <option value="Alta">{{ $t('taskPriority.high') }}</option>
-          <option value="Urgente">{{ $t('taskPriority.urgent') }}</option>
+          <option value="Baja">{{ $t('taskPriority.baja') }}</option>
+          <option value="Media">{{ $t('taskPriority.media') }}</option>
+          <option value="Alta">{{ $t('taskPriority.alta') }}</option>
+          <option value="Urgente">{{ $t('taskPriority.urgente') }}</option>
         </select>
       </div>
 
@@ -135,7 +135,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useTaskStore } from '@/stores/tasks'
-import type { Task, TaskStatus, TaskPriority } from '@/types/task' // Importa TaskPriority
+import type { Task, TaskStatus, TaskPriority } from '@/types/task'
 import { useI18n } from 'vue-i18n'
 
 defineEmits(['editTask', 'addTask'])
@@ -144,11 +144,10 @@ const taskStore = useTaskStore()
 const { t } = useI18n()
 
 const filterStatus = ref<TaskStatus | ''>('')
-const filterPriority = ref<TaskPriority | ''>('') // Nuevo ref para el filtro de prioridad
+const filterPriority = ref<TaskPriority | ''>('')
 const sortBy = ref<keyof Task>('dueDate')
 const sortDirection = ref<'asc' | 'desc'>('asc')
 
-// Definir el orden de las prioridades para el ordenamiento
 const priorityOrder: Record<TaskPriority, number> = {
   Urgente: 1,
   Alta: 2,
@@ -161,8 +160,6 @@ const setSortBy = (field: keyof Task) => {
     sortDirection.value = sortDirection.value === 'asc' ? 'desc' : 'asc'
   } else {
     sortBy.value = field
-    // La dirección por defecto al cambiar de columna debería ser la que tenga sentido para ese campo.
-    // Para prioridad, quizás 'Urgente' primero, que es 'asc' en nuestro mapa.
     sortDirection.value = field === 'priority' || field === 'dueDate' ? 'asc' : 'asc'
   }
 }
@@ -196,7 +193,6 @@ const filteredAndSortedTasks = computed(() => {
       }
       result = statusOrder[a.status] - statusOrder[b.status]
     } else if (sortBy.value === 'priority') {
-      // Lógica de ordenamiento por prioridad
       result = priorityOrder[a.priority] - priorityOrder[b.priority]
     } else if (sortBy.value === 'title') {
       result = a.title.localeCompare(b.title)
@@ -335,20 +331,19 @@ const confirmDelete = (id: string) => {
       min-width: 120px;
     }
     &--priority {
-      /* Nuevo estilo para celda de prioridad */
       min-width: 100px;
       font-weight: bold;
       &[data-priority='Baja'] {
-        color: #6c757d; // Gris
+        color: #6c757d;
       }
       &[data-priority='Media'] {
-        color: #007bff; // Azul
+        color: #007bff;
       }
       &[data-priority='Alta'] {
-        color: #ffc107; // Naranja
+        color: #ffc107;
       }
       &[data-priority='Urgente'] {
-        color: #dc3545; // Rojo
+        color: #dc3545;
       }
     }
     &--status {
@@ -465,8 +460,6 @@ const confirmDelete = (id: string) => {
   }
 }
 
-/* --- Animaciones para TransitionGroup --- */
-
 .task-list-item-enter-active,
 .task-list-item-leave-active {
   transition: all 0.5s ease;
@@ -487,7 +480,6 @@ const confirmDelete = (id: string) => {
   transition: transform 0.5s ease;
 }
 
-// Nuevo spinner de carga
 .task-list__loading {
   text-align: center;
   color: #007bff;
@@ -504,7 +496,7 @@ const confirmDelete = (id: string) => {
   }
 }
 .task-list__loader {
-  border: 3px solid rgba(0, 123, 255, 0.3); /* Color del spinner adaptado */
+  border: 3px solid rgba(0, 123, 255, 0.3);
   border-top: 3px solid #007bff;
   border-radius: 50%;
   width: 16px;
