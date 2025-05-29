@@ -16,6 +16,7 @@
   },
   "taskList": {
     "filterByStatus": "Filtrar por Estatus:",
+    "filterByPriority": "Filtrar por Prioridad",
     "sortBy": "Ordenar por:",
     "ascending": "Ascendente",
     "descending": "Descendente",
@@ -44,6 +45,7 @@
     "titlePlaceholder": "Título de la tarea",
     "descriptionPlaceholder": "Descripción detallada de la tarea",
     "dueDateLabel": "Fecha de Vencimiento:",
+    "priorityLabel": "Prioridad:",
     "statusLabel": "Estatus:",
     "idNotFound": "ID de tarea no encontrado para actualizar.",
     "saveChanges": "Guardar Cambios",
@@ -58,5 +60,11 @@
     "status": "Estatus:",
     "taskNotFound": "Tarea no encontrada.",
     "backToList": "Volver a la Lista"
+  },
+  "taskPriority": {
+    "baja": "Baja",
+    "media": "Media",
+    "alta": "Alta",
+    "urgente": "Urgente"
   }
 }

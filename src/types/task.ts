@@ -1,9 +1,10 @@
 export type TaskStatus = 'Pendiente' | 'En progreso' | 'Completada'
-
+export type TaskPriority = 'Baja' | 'Media' | 'Alta' | 'Urgente'
 export interface Task {
   id: string
   title: string
-  description?: string // Opcional
-  dueDate: string // Formato 'YYYY-MM-DD'
+  description?: string
+  dueDate: string
   status: TaskStatus
+  priority: TaskPriority
 }

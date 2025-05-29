@@ -44,6 +44,22 @@
       </div>
 
       <div class="task-form__group">
+        <label for="priority" class="task-form__label">{{ $t('taskForm.priorityLabel') }}</label>
+        <select
+          id="priority"
+          v-model="task.priority"
+          required
+          class="task-form__select"
+          :disabled="formLoading"
+        >
+          <option value="Baja">{{ $t('taskPriority.baja') }}</option>
+          <option value="Media">{{ $t('taskPriority.media') }}</option>
+          <option value="Alta">{{ $t('taskPriority.alta') }}</option>
+          <option value="Urgente">{{ $t('taskPriority.urgente') }}</option>
+        </select>
+      </div>
+
+      <div class="task-form__group">
         <label for="status" class="task-form__label">{{ $t('taskForm.statusLabel') }}</label>
         <select
           id="status"
@@ -91,23 +107,23 @@ import { ref, watch, onMounted } from 'vue'
 import { useTaskStore } from '@/stores/tasks'
 import type { Task } from '@/types/task'
 import { useI18n } from 'vue-i18n'
-import { useToast } from '@/composables/useToast' // Importa el composable de toast
+import { useToast } from '@/composables/useToast'
 
 const taskStore = useTaskStore()
 const emit = defineEmits(['taskSaved', 'cancelEdit'])
 const { t } = useI18n()
-const { showErrorToast } = useToast() // Obtiene la función de toast de error
+const { showErrorToast } = useToast()
 
-const task = ref<Omit<Task, 'id' | 'description'> & { id?: string; description?: string }>({
+const task = ref<Partial<Task>>({
   title: '',
   dueDate: '',
   status: 'Pendiente',
+  priority: 'Media', // Valor por defecto para la nueva prioridad
   description: '',
 })
 
 const isEditing = ref(false)
 const formLoading = ref(false)
-// Eliminamos: const formError = ref<string | null>(null);
 
 const initializeForm = () => {
   if (taskStore.currentEditingTask) {
@@ -116,7 +132,6 @@ const initializeForm = () => {
   } else {
     isEditing.value = false
   }
-  // Eliminamos: formError.value = null;
 }
 
 watch(
@@ -136,37 +151,34 @@ const resetForm = () => {
     title: '',
     dueDate: '',
     status: 'Pendiente',
+    priority: 'Media', // Reiniciar también la prioridad a un valor por defecto
     description: '',
   }
 }
 
 const saveTask = async () => {
   formLoading.value = true
-  // Eliminamos: formError.value = null;
-
   try {
     if (isEditing.value) {
       if (task.value.id) {
         await taskStore.updateTask(task.value as Task)
-        // El store ya manejará el toast de éxito/error, no necesitamos propagar aquí
       } else {
-        // Muestra el toast de error directamente
         showErrorToast(t('taskForm.idNotFound'))
+        console.error('Error: Trying to update a task without an ID while in editing mode.')
+        formLoading.value = false
+        return
       }
     } else {
-      await taskStore.addTask(task.value)
-      // El store ya manejará el toast de éxito/error
+      await taskStore.addTask(task.value as Omit<Task, 'id'>)
     }
-    // Si la operación en el store fue exitosa, entonces procedemos
-    if (!taskStore.loading) {
-      // Asume que loading se desactiva al final de la operación exitosa o fallida
+
+    if (!taskStore.loading && !taskStore.error) {
       resetForm()
       emit('taskSaved')
     }
   } catch (error) {
-    // Esto atraparía errores que no vienen directamente del store (ej. el throw new Error si ID no existe)
     console.error('Error inesperado al guardar tarea en TaskForm:', error)
-    showErrorToast(t('taskForm.errorSaving'))
+    showErrorToast(t('taskForm.unexpectedError'))
   } finally {
     formLoading.value = false
   }
@@ -175,7 +187,6 @@ const saveTask = async () => {
 const cancelEdit = () => {
   resetForm()
   emit('cancelEdit')
-  // Eliminamos: formError.value = null;
 }
 </script>
 

@@ -13,6 +13,19 @@
         </select>
       </div>
 
+      <div class="task-list__filter-group">
+        <label for="priority-filter" class="task-list__label">{{
+          $t('taskList.filterByPriority')
+        }}</label>
+        <select id="priority-filter" v-model="filterPriority" class="task-list__select">
+          <option value="">{{ $t('taskList.all') }}</option>
+          <option value="Baja">{{ $t('taskPriority.low') }}</option>
+          <option value="Media">{{ $t('taskPriority.medium') }}</option>
+          <option value="Alta">{{ $t('taskPriority.high') }}</option>
+          <option value="Urgente">{{ $t('taskPriority.urgent') }}</option>
+        </select>
+      </div>
+
       <button @click="$emit('addTask')" class="task-list__add-button">
         {{ $t('taskList.addTask') }}
       </button>
@@ -45,6 +58,17 @@
           </th>
           <th
             class="task-list__header-cell task-list__header-cell--sortable"
+            @click="setSortBy('priority')"
+          >
+            {{ $t('taskList.priority') }}
+            <span class="task-list__sort-icon">
+              <span v-if="sortBy === 'priority'">
+                {{ sortDirection === 'asc' ? '▲' : '▼' }}
+              </span>
+            </span>
+          </th>
+          <th
+            class="task-list__header-cell task-list__header-cell--sortable"
             @click="setSortBy('status')"
           >
             {{ $t('taskList.status') }}
@@ -60,17 +84,26 @@
         </tr>
       </thead>
       <TransitionGroup name="task-list-item" tag="tbody" class="task-list__body">
+        <tr v-if="taskStore.loading" key="loading-message" class="task-list__loading">
+          <td colspan="5" class="task-list__loading-cell">
+            {{ $t('taskList.loadingTasks') }}
+            <span class="task-list__loader"></span>
+          </td>
+        </tr>
         <tr
-          v-if="filteredAndSortedTasks.length === 0 && !taskStore.loading"
+          v-else-if="filteredAndSortedTasks.length === 0"
           key="no-tasks-message"
           class="task-list__no-tasks"
         >
-          <td colspan="4" class="task-list__no-tasks-cell">{{ $t('taskList.noTasks') }}</td>
+          <td colspan="5" class="task-list__no-tasks-cell">{{ $t('taskList.noTasks') }}</td>
         </tr>
         <tr v-for="task in filteredAndSortedTasks" :key="task.id" class="task-list__row">
           <td class="task-list__cell task-list__cell--title">{{ task.title }}</td>
           <td class="task-list__cell task-list__cell--due-date">{{ task.dueDate }}</td>
-          <td class="task-list__cell task-list__cell--status">
+          <td class="task-list__cell task-list__cell--priority" :data-priority="task.priority">
+            {{ $t(`taskPriority.${task.priority.toLowerCase()}`) }}
+          </td>
+          <td class="task-list__cell task-list__cell--status" :data-status="task.status">
             {{ $t(`taskList.statusOrder.${task.status.toLowerCase().replace(' ', '')}`) }}
           </td>
           <td class="task-list__cell task-list__cell--actions">
@@ -102,7 +135,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useTaskStore } from '@/stores/tasks'
-import type { Task, TaskStatus } from '@/types/task'
+import type { Task, TaskStatus, TaskPriority } from '@/types/task' // Importa TaskPriority
 import { useI18n } from 'vue-i18n'
 
 defineEmits(['editTask', 'addTask'])
@@ -111,23 +144,41 @@ const taskStore = useTaskStore()
 const { t } = useI18n()
 
 const filterStatus = ref<TaskStatus | ''>('')
+const filterPriority = ref<TaskPriority | ''>('') // Nuevo ref para el filtro de prioridad
 const sortBy = ref<keyof Task>('dueDate')
 const sortDirection = ref<'asc' | 'desc'>('asc')
+
+// Definir el orden de las prioridades para el ordenamiento
+const priorityOrder: Record<TaskPriority, number> = {
+  Urgente: 1,
+  Alta: 2,
+  Media: 3,
+  Baja: 4,
+}
 
 const setSortBy = (field: keyof Task) => {
   if (sortBy.value === field) {
     sortDirection.value = sortDirection.value === 'asc' ? 'desc' : 'asc'
   } else {
     sortBy.value = field
-    sortDirection.value = 'asc'
+    // La dirección por defecto al cambiar de columna debería ser la que tenga sentido para ese campo.
+    // Para prioridad, quizás 'Urgente' primero, que es 'asc' en nuestro mapa.
+    sortDirection.value = field === 'priority' || field === 'dueDate' ? 'asc' : 'asc'
   }
 }
 
 const filteredTasks = computed(() => {
-  if (!filterStatus.value) {
-    return taskStore.allTasks
+  let tasksToFilter = taskStore.allTasks
+
+  if (filterStatus.value) {
+    tasksToFilter = tasksToFilter.filter((task) => task.status === filterStatus.value)
   }
-  return taskStore.allTasks.filter((task) => task.status === filterStatus.value)
+
+  if (filterPriority.value) {
+    tasksToFilter = tasksToFilter.filter((task) => task.priority === filterPriority.value)
+  }
+
+  return tasksToFilter
 })
 
 const filteredAndSortedTasks = computed(() => {
@@ -144,6 +195,9 @@ const filteredAndSortedTasks = computed(() => {
         Completada: 3,
       }
       result = statusOrder[a.status] - statusOrder[b.status]
+    } else if (sortBy.value === 'priority') {
+      // Lógica de ordenamiento por prioridad
+      result = priorityOrder[a.priority] - priorityOrder[b.priority]
     } else if (sortBy.value === 'title') {
       result = a.title.localeCompare(b.title)
     }
@@ -155,7 +209,6 @@ const filteredAndSortedTasks = computed(() => {
 const confirmDelete = (id: string) => {
   if (confirm(t('global.confirmDelete'))) {
     taskStore.deleteTask(id)
-    // El store ya emitirá el toast de éxito/error.
   }
 }
 </script>
@@ -280,6 +333,23 @@ const confirmDelete = (id: string) => {
     }
     &--due-date {
       min-width: 120px;
+    }
+    &--priority {
+      /* Nuevo estilo para celda de prioridad */
+      min-width: 100px;
+      font-weight: bold;
+      &[data-priority='Baja'] {
+        color: #6c757d; // Gris
+      }
+      &[data-priority='Media'] {
+        color: #007bff; // Azul
+      }
+      &[data-priority='Alta'] {
+        color: #ffc107; // Naranja
+      }
+      &[data-priority='Urgente'] {
+        color: #dc3545; // Rojo
+      }
     }
     &--status {
       min-width: 120px;
@@ -415,5 +485,38 @@ const confirmDelete = (id: string) => {
 
 .task-list-item-move {
   transition: transform 0.5s ease;
+}
+
+// Nuevo spinner de carga
+.task-list__loading {
+  text-align: center;
+  color: #007bff;
+  font-style: italic;
+  padding: 20px;
+
+  &-cell {
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    font-weight: bold;
+  }
+}
+.task-list__loader {
+  border: 3px solid rgba(0, 123, 255, 0.3); /* Color del spinner adaptado */
+  border-top: 3px solid #007bff;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 </style>

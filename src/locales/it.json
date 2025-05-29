@@ -1,17 +1,17 @@
 {
   "global": {
-    "appName": "Gestore Compiti",
+    "appName": "Gestore Attività",
     "loading": "Caricamento...",
     "error": "Errore:",
-    "goBack": "Torna all'Elenco",
+    "goBack": "Torna alla lista",
     "saveChanges": "Salva Modifiche",
-    "addTask": "Aggiungi Compito",
+    "addTask": "Aggiungi Attività",
     "cancel": "Annulla",
-    "confirmDelete": "Sei sicuro di voler eliminare questo compito?",
+    "confirmDelete": "Sei sicuro di voler eliminare questa attività?",
     "noDescription": "Nessuna descrizione",
     "title": "Titolo",
     "description": "Descrizione",
-    "dueDate": "Data di Scadenza",
+    "dueDate": "Data Scadenza",
     "status": "Stato"
   },
   "taskList": {
@@ -19,44 +19,56 @@
     "sortBy": "Ordina per:",
     "ascending": "Crescente",
     "descending": "Decrescente",
-    "all": "Tutti",
-    "pending": "In Sospeso",
-    "inProgress": "In Corso",
-    "completed": "Completato",
+    "all": "Tutte",
+    "pending": "In sospeso",
+    "inProgress": "In corso",
+    "completed": "Completata",
     "title": "Titolo",
     "dueDate": "Data Scadenza",
     "status": "Stato",
+    "priority": "Priorità",
     "actions": "Azioni",
     "viewDetail": "Vedi Dettagli",
     "edit": "Modifica",
     "delete": "Elimina",
-    "noTasks": "Nessun compito da visualizzare.",
-    "addTask": "Aggiungi Nuovo Compito",
+    "noTasks": "Nessuna attività da visualizzare.",
+    "addTask": "Aggiungi Nuova Attività",
+    "filterByPriority": "Filtra per Priorità:",
+    "loadingTasks": "Caricamento attività...",
     "statusOrder": {
-      "pendiente": "In Sospeso",
-      "enprogreso": "In Corso",
-      "completada": "Completato"
+      "pendiente": "In sospeso",
+      "enprogreso": "In corso",
+      "completada": "Completata"
     }
   },
   "taskForm": {
-    "editTask": "Modifica Compito",
-    "addNewTask": "Aggiungi Nuovo Compito",
-    "titlePlaceholder": "Titolo del compito",
-    "descriptionPlaceholder": "Descrizione dettagliata del compito",
-    "dueDateLabel": "Data di Scadenza:",
+    "editTask": "Modifica Attività",
+    "addNewTask": "Aggiungi Nuova Attività",
+    "titlePlaceholder": "Titolo attività",
+    "descriptionPlaceholder": "Descrizione dettagliata attività",
+    "dueDateLabel": "Data Scadenza:",
     "statusLabel": "Stato:",
-    "idNotFound": "ID compito non trovato per l'aggiornamento.",
+    "priorityLabel": "Priorità:",
+    "idNotFound": "ID attività non trovato per l'aggiornamento.",
     "saveChanges": "Salva Modifiche",
-    "addTask": "Aggiungi Compito",
+    "addTask": "Aggiungi Attività",
     "cancel": "Annulla",
-    "loadingForm": "Caricamento...",
-    "errorSaving": "Si è verificato un errore durante il salvataggio del compito."
+    "loadingForm": "Salvataggio...",
+    "errorSaving": "Si è verificato un errore durante il salvataggio dell'attività.",
+    "unexpectedError": "Si è verificato un errore imprevisto."
   },
   "taskDetail": {
     "noDescription": "Nessuna descrizione",
-    "dueDate": "Data di Scadenza:",
+    "dueDate": "Data Scadenza:",
     "status": "Stato:",
-    "taskNotFound": "Compito non trovato.",
-    "backToList": "Torna all'Elenco"
+    "priority": "Priorità:",
+    "taskNotFound": "Attività non trovata.",
+    "backToList": "Torna alla lista"
+  },
+  "taskPriority": {
+    "baja": "Bassa",
+    "media": "Media",
+    "alta": "Alta",
+    "urgente": "Urgente"
   }
 }

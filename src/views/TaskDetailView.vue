@@ -10,6 +10,12 @@
         <span class="task-detail__value">{{ task.dueDate }}</span>
       </div>
       <div class="task-detail__info-group">
+        <span class="task-detail__label">{{ $t('taskDetail.priority') }}</span>
+        <span class="task-detail__value" :data-priority="task.priority">{{
+          $t(`taskPriority.${task.priority.toLowerCase()}`)
+        }}</span>
+      </div>
+      <div class="task-detail__info-group">
         <span class="task-detail__label">{{ $t('taskDetail.status') }}</span>
         <span class="task-detail__value" :data-status="task.status">{{
           $t(`taskList.statusOrder.${task.status.toLowerCase().replace(' ', '')}`)
@@ -36,42 +42,43 @@ import { useRoute, useRouter } from 'vue-router'
 import { useTaskStore } from '@/stores/tasks'
 import type { Task } from '@/types/task'
 import { useI18n } from 'vue-i18n'
-import { useToast } from '@/composables/useToast' // Importa useToast
+import { useToast } from '@/composables/useToast'
 
 const route = useRoute()
 const router = useRouter()
 const taskStore = useTaskStore()
 const { t } = useI18n()
-const { showErrorToast } = useToast() // Obtiene la función de toast de error
+const { showErrorToast } = useToast()
 
 const task = ref<Task | undefined>(undefined)
 
 const loadTask = async () => {
-  // Hacemos la función asíncrona para posible carga de API
   const taskId = route.params.id as string
-  if (taskId) {
-    // Si la tarea no está en el store o el store no está cargando
-    if (!taskStore.getTaskById(taskId) && !taskStore.loading) {
-      // Intenta cargar las tareas si no están ya cargadas
-      await taskStore.loadTasks()
-    }
-    task.value = taskStore.getTaskById(taskId)
-    if (!task.value && taskStore.error) {
-      showErrorToast(taskStore.error) // Muestra error si el store falló al cargar
-    } else if (!task.value) {
-      // Si no se encuentra la tarea y no hay error del store, podría ser que no existe
-      showErrorToast(t('taskDetail.taskNotFound'), 5000) // Mensaje de "no encontrada"
-    }
-  } else {
+  if (!taskId) {
     task.value = undefined
-    showErrorToast(t('taskDetail.taskNotFound'), 5000)
+    showErrorToast(t('taskDetail.taskNotFound'))
+    return
+  }
+
+  if (taskStore.allTasks.length === 0 && !taskStore.loading) {
+    await taskStore.loadTasks()
+  }
+
+  task.value = taskStore.getTaskById(taskId)
+
+  if (!task.value) {
+    if (taskStore.error) {
+      showErrorToast(taskStore.error)
+    } else {
+      showErrorToast(t('taskDetail.taskNotFound'), 5000)
+    }
   }
 }
 
 watch(
   () => route.params.id,
   (newId) => {
-    if (newId) {
+    if (typeof newId === 'string' && newId) {
       loadTask()
     } else {
       task.value = undefined
@@ -141,6 +148,7 @@ const goBack = () => {
   &__value {
     color: #555;
 
+    // Estilos de estado existentes
     &[data-status='Pendiente'] {
       color: #f0ad4e;
       font-weight: bold;
@@ -151,6 +159,23 @@ const goBack = () => {
     }
     &[data-status='Completada'] {
       color: #5cb85c;
+      font-weight: bold;
+    }
+    // Nuevos estilos para prioridad
+    &[data-priority='Baja'] {
+      color: #6c757d; // Gris
+      font-weight: bold;
+    }
+    &[data-priority='Media'] {
+      color: #007bff; // Azul
+      font-weight: bold;
+    }
+    &[data-priority='Alta'] {
+      color: #ffc107; // Naranja
+      font-weight: bold;
+    }
+    &[data-priority='Urgente'] {
+      color: #dc3545; // Rojo
       font-weight: bold;
     }
   }

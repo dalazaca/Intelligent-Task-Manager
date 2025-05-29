@@ -1,6 +1,6 @@
 // src/api/tasks.ts
-import type { Task } from '@/types/task'
-import { v4 as uuidv4 } from 'uuid' // Para generar IDs únicos si se crea una tarea
+import type { Task } from '@/types/task' // Importa TaskPriority
+import { v4 as uuidv4 } from 'uuid'
 
 // Simula la base de datos en localStorage
 const LOCAL_STORAGE_KEY = 'tasks_spa'
@@ -11,12 +11,9 @@ interface ApiResponse<T> {
   error?: string
 }
 
-// Función auxiliar para simular un retardo de red
 const simulateNetworkDelay = (ms: number = 500) => {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
-
-// --- SIMULACIÓN DE LLAMADAS A LA API ---
 
 /**
  * @function fetchTasks
@@ -24,16 +21,17 @@ const simulateNetworkDelay = (ms: number = 500) => {
  * Puede fallar un 20% de las veces para simular errores de red.
  */
 export async function fetchTasks(): Promise<ApiResponse<Task[]>> {
-  await simulateNetworkDelay() // Simula el retardo de red
+  await simulateNetworkDelay()
 
   if (Math.random() < 0.2) {
-    // 20% de probabilidad de error
     return { success: false, error: 'Error de red simulado al obtener tareas.' }
   }
 
   const storedTasks = localStorage.getItem(LOCAL_STORAGE_KEY)
   try {
     const tasks: Task[] = storedTasks ? JSON.parse(storedTasks) : []
+    // Opcional: Si estás migrando datos viejos sin prioridad, puedes asignar una por defecto aquí
+    // return { success: true, data: tasks.map(t => ({ ...t, priority: t.priority || 'Media' })) };
     return { success: true, data: tasks }
   } catch (e) {
     console.error('Error al parsear tareas de localStorage:', e)
@@ -50,7 +48,6 @@ export async function createTask(newTask: Omit<Task, 'id'>): Promise<ApiResponse
   await simulateNetworkDelay()
 
   if (Math.random() < 0.15) {
-    // 15% de probabilidad de error
     return { success: false, error: 'Error simulado al crear la tarea.' }
   }
 
@@ -64,6 +61,7 @@ export async function createTask(newTask: Omit<Task, 'id'>): Promise<ApiResponse
   }
 
   const tasks = tasksResponse.data
+  // Asegúrate de que newTask ya incluya priority desde el formulario.
   const taskWithId: Task = { ...newTask, id: uuidv4() }
   tasks.push(taskWithId)
   localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(tasks))
@@ -79,7 +77,6 @@ export async function changeTask(updatedTask: Task): Promise<ApiResponse<Task>> 
   await simulateNetworkDelay()
 
   if (Math.random() < 0.1) {
-    // 10% de probabilidad de error
     return { success: false, error: 'Error simulado al actualizar la tarea.' }
   }
 
@@ -110,7 +107,6 @@ export async function removeTask(id: string): Promise<ApiResponse<string>> {
   await simulateNetworkDelay()
 
   if (Math.random() < 0.05) {
-    // 5% de probabilidad de error
     return { success: false, error: 'Error simulado al eliminar la tarea.' }
   }
 

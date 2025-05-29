@@ -49,7 +49,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, watch } from 'vue'
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { availableLocales } from '@/i18n'
 import { useToast } from '@/composables/useToast'
@@ -57,15 +57,6 @@ import ToastMessage from '@/components/ToastMessage.vue'
 
 const { locale } = useI18n()
 const toastComposable = useToast()
-
-// Añade esta línea para depuración
-watch(
-  toastComposable.toasts,
-  (newVal) => {
-    console.log('Toasts actualizados en ToastMessage.vue:', newVal)
-  },
-  { deep: true, immediate: true },
-)
 
 const selectedLocaleFlag = computed(() => {
   const currentLocale = availableLocales.find((l) => l.code === locale.value)

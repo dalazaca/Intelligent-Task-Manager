@@ -8,7 +8,7 @@
     "addTask": "Add Task",
     "cancel": "Cancel",
     "confirmDelete": "Are you sure you want to delete this task?",
-    "noDescription": "No description",
+    "noDescription": "Optional",
     "title": "Title",
     "description": "Description",
     "dueDate": "Due Date",
@@ -26,12 +26,15 @@
     "title": "Title",
     "dueDate": "Due Date",
     "status": "Status",
+    "priority": "Priority",
     "actions": "Actions",
     "viewDetail": "View Detail",
     "edit": "Edit",
     "delete": "Delete",
     "noTasks": "No tasks to display.",
     "addTask": "Add New Task",
+    "filterByPriority": "Filter by Priority:",
+    "loadingTasks": "Loading tasks...",
     "statusOrder": {
       "pendiente": "Pending",
       "enprogreso": "In progress",
@@ -45,18 +48,27 @@
     "descriptionPlaceholder": "Detailed task description",
     "dueDateLabel": "Due Date:",
     "statusLabel": "Status:",
+    "priorityLabel": "Priority:",
     "idNotFound": "Task ID not found for update.",
     "saveChanges": "Save Changes",
     "addTask": "Add Task",
     "cancel": "Cancel",
-    "loadingForm": "Loading...",
-    "errorSaving": "An error occurred while saving the task."
+    "loadingForm": "Saving...",
+    "errorSaving": "An error occurred while saving the task.",
+    "unexpectedError": "An unexpected error occurred."
   },
   "taskDetail": {
     "noDescription": "No description",
     "dueDate": "Due Date:",
     "status": "Status:",
+    "priority": "Priority:",
     "taskNotFound": "Task not found.",
     "backToList": "Back to List"
+  },
+  "taskPriority": {
+    "baja": "Low",
+    "media": "Medium",
+    "alta": "High",
+    "urgente": "Urgent"
   }
 }
