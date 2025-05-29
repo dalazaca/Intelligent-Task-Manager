@@ -44,7 +44,12 @@
     "importing": "Importando...",
     "importErrorFormat": "Formato de archivo inválido. Asegúrate de que es un JSON de tareas válido.",
     "importErrorParsing": "Error al procesar el archivo. Asegúrate de que es un JSON válido.",
-    "importErrorReading": "Error al leer el archivo."
+    "importErrorReading": "Error al leer el archivo.",
+    "itemsPerPage": "Tareas por página",
+    "page": "Página",
+    "of": "de",
+    "previous": "Anterior",
+    "next": "Siguiente"
   },
   "taskForm": {
     "editTask": "Editar Tarea",

@@ -44,7 +44,12 @@
     "importing": "Importazione...",
     "importErrorFormat": "Formato file non valido. Assicurati che sia un array JSON valido di attività.",
     "importErrorParsing": "Errore durante l'analisi del file. Assicurati che sia un JSON valido.",
-    "importErrorReading": "Errore durante la lettura del file."
+    "importErrorReading": "Errore durante la lettura del file.",
+    "itemsPerPage": "Elementi per pagina",
+    "page": "Pagina",
+    "of": "di",
+    "previous": "Precedente",
+    "next": "Successivo"
   },
   "taskForm": {
     "editTask": "Modifica Attività",

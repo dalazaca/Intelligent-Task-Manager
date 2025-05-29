@@ -21,7 +21,7 @@
     "descending": "Descending",
     "all": "All",
     "pending": "Pending",
-    "inProgress": "In progress",
+    "inProgress": "In Progress",
     "completed": "Completed",
     "title": "Title",
     "dueDate": "Due Date",
@@ -44,7 +44,12 @@
     "importing": "Importing...",
     "importErrorFormat": "Invalid file format. Ensure it's a valid JSON array of tasks.",
     "importErrorParsing": "Error parsing file. Ensure it's valid JSON.",
-    "importErrorReading": "Error reading file."
+    "importErrorReading": "Error reading file.",
+    "itemsPerPage": "Items per page",
+    "page": "Page",
+    "of": "of",
+    "previous": "Previous",
+    "next": "Next"
   },
   "taskForm": {
     "editTask": "Edit Task",
