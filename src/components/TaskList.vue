@@ -1,20 +1,5 @@
 <template>
   <div class="task-list">
-    <div v-if="taskStore.loading" class="task-list__message task-list__message--loading">
-      Cargando tareas...
-    </div>
-    <div v-if="taskStore.error" class="task-list__message task-list__message--error">
-      Error: {{ taskStore.error }}
-    </div>
-    <div class="task-list__language-switcher">
-      <button @click="changeLanguage('es')" :class="{ active: $i18n.locale === 'es' }">
-        Español
-      </button>
-      <button @click="changeLanguage('en')" :class="{ active: $i18n.locale === 'en' }">
-        English
-      </button>
-    </div>
-
     <div class="task-list__controls">
       <div class="task-list__filter-group">
         <label for="status-filter" class="task-list__label">{{
@@ -29,43 +14,118 @@
       </div>
 
       <div class="task-list__filter-group">
-        <label for="sort-by" class="task-list__label">{{ $t('taskList.sortBy') }}</label>
-        <select id="sort-by" v-model="sortBy" class="task-list__select">
-          <option value="dueDate">{{ $t('taskList.dueDate') }}</option>
-          <option value="status">{{ $t('taskList.status') }}</option>
-          <option value="title">{{ $t('taskList.title') }}</option>
+        <label for="priority-filter" class="task-list__label">{{
+          $t('taskList.filterByPriority')
+        }}</label>
+        <select id="priority-filter" v-model="filterPriority" class="task-list__select">
+          <option value="">{{ $t('taskList.all') }}</option>
+          <option value="Baja">{{ $t('taskPriority.baja') }}</option>
+          <option value="Media">{{ $t('taskPriority.media') }}</option>
+          <option value="Alta">{{ $t('taskPriority.alta') }}</option>
+          <option value="Urgente">{{ $t('taskPriority.urgente') }}</option>
         </select>
-        <button @click="toggleSortDirection" class="task-list__sort-button">
-          {{ sortDirection === 'asc' ? $t('taskList.ascending') : $t('taskList.descending') }}
-        </button>
+      </div>
+
+      <button @click="$emit('addTask')" class="task-list__add-button">
+        {{ $t('taskList.addTask') }}
+      </button>
+
+      <div class="task-list__import-group">
+        <label
+          for="file-upload"
+          class="task-list__import-button"
+          :class="{ 'task-list__import-button--loading': importLoading }"
+        >
+          <span v-if="importLoading" class="task-list__loader"></span>
+          {{ importLoading ? $t('taskList.importing') : $t('taskList.importTasks') }}
+        </label>
+        <input
+          type="file"
+          id="file-upload"
+          ref="fileInput"
+          @change="handleFileUpload"
+          accept=".json"
+          class="task-list__file-input"
+          :disabled="importLoading"
+        />
       </div>
     </div>
 
     <table class="task-list__table">
       <thead class="task-list__header">
         <tr class="task-list__header-row">
-          <th class="task-list__header-cell task-list__header-cell--title">
+          <th
+            class="task-list__header-cell task-list__header-cell--sortable"
+            @click="setSortBy('title')"
+          >
             {{ $t('taskList.title') }}
+            <span class="task-list__sort-icon">
+              <span v-if="sortBy === 'title'">
+                {{ sortDirection === 'asc' ? '▲' : '▼' }}
+              </span>
+            </span>
           </th>
-          <th class="task-list__header-cell task-list__header-cell--due-date">
+          <th
+            class="task-list__header-cell task-list__header-cell--sortable"
+            @click="setSortBy('dueDate')"
+          >
             {{ $t('taskList.dueDate') }}
+            <span class="task-list__sort-icon">
+              <span v-if="sortBy === 'dueDate'">
+                {{ sortDirection === 'asc' ? '▲' : '▼' }}
+              </span>
+            </span>
           </th>
-          <th class="task-list__header-cell task-list__header-cell--status">
+          <th
+            class="task-list__header-cell task-list__header-cell--sortable"
+            @click="setSortBy('priority')"
+          >
+            {{ $t('taskList.priority') }}
+            <span class="task-list__sort-icon">
+              <span v-if="sortBy === 'priority'">
+                {{ sortDirection === 'asc' ? '▲' : '▼' }}
+              </span>
+            </span>
+          </th>
+          <th
+            class="task-list__header-cell task-list__header-cell--sortable"
+            @click="setSortBy('status')"
+          >
             {{ $t('taskList.status') }}
+            <span class="task-list__sort-icon">
+              <span v-if="sortBy === 'status'">
+                {{ sortDirection === 'asc' ? '▲' : '▼' }}
+              </span>
+            </span>
           </th>
-          <th class="task-list__header-cell task-list__header-cell--actions">
+          <th class="task-list__header-cell list__header-cell--actions">
             {{ $t('taskList.actions') }}
           </th>
         </tr>
       </thead>
-      <tbody class="task-list__body">
-        <tr v-if="filteredAndSortedTasks.length === 0" class="task-list__no-tasks">
-          <td colspan="4" class="task-list__no-tasks-cell">{{ $t('taskList.noTasks') }}</td>
+      <TransitionGroup name="task-list-item" tag="tbody" class="task-list__body">
+        <tr v-if="taskStore.loading" key="loading-message" class="task-list__loading">
+          <td colspan="5" class="task-list__loading-cell">
+            {{ $t('taskList.loadingTasks') }}
+            <span class="task-list__loader"></span>
+          </td>
         </tr>
-        <tr v-for="task in filteredAndSortedTasks" :key="task.id" class="task-list__row">
-          <td class="task-list__cell task-list__cell--title">{{ task.title }}</td>
+        <tr
+          v-else-if="paginatedTasks.length === 0"
+          key="no-tasks-message"
+          class="task-list__no-tasks"
+        >
+          <td colspan="5" class="task-list__no-tasks-cell">{{ $t('taskList.noTasks') }}</td>
+        </tr>
+        <tr v-for="task in paginatedTasks" :key="task.id" class="task-list__row">
+          <td class="task-list__cell task-list__cell--title task-list__cell--truncate">
+            {{ task.title }}
+          </td>
           <td class="task-list__cell task-list__cell--due-date">{{ task.dueDate }}</td>
-          <td class="task-list__cell task-list__cell--status">
+          <td class="task-list__cell task-list__cell--priority" :data-priority="task.priority">
+            {{ $t(`taskPriority.${task.priority.toLowerCase()}`) }}
+          </td>
+          <td class="task-list__cell task-list__cell--status" :data-status="task.status">
             {{ $t(`taskList.statusOrder.${task.status.toLowerCase().replace(' ', '')}`) }}
           </td>
           <td class="task-list__cell task-list__cell--actions">
@@ -89,77 +149,194 @@
             </button>
           </td>
         </tr>
-      </tbody>
+      </TransitionGroup>
     </table>
+
+    <div class="task-list__pagination" v-if="filteredAndSortedTasks.length > 0">
+      <div class="task-list__items-per-page">
+        <label for="items-per-page" class="task-list__label">
+          {{ $t('taskList.itemsPerPage') }}:
+        </label>
+        <select id="items-per-page" v-model.number="itemsPerPage" class="task-list__select">
+          <option v-for="option in itemsPerPageOptions" :key="option" :value="option">
+            {{ option }}
+          </option>
+        </select>
+      </div>
+
+      <div class="task-list__page-controls">
+        <button
+          @click="currentPage--"
+          :disabled="currentPage === 1"
+          class="task-list__pagination-button"
+        >
+          {{ $t('taskList.previous') }}
+        </button>
+        <span class="task-list__page-info">
+          {{ $t('taskList.page') }} {{ currentPage }} {{ $t('taskList.of') }} {{ totalPages }}
+        </span>
+        <button
+          @click="currentPage++"
+          :disabled="currentPage === totalPages"
+          class="task-list__pagination-button"
+        >
+          {{ $t('taskList.next') }}
+        </button>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useTaskStore } from '@/stores/tasks'
-import type { Task, TaskStatus } from '@/types/task'
-import { useI18n } from 'vue-i18n' // Importa useI18n
+import type { Task, TaskStatus, TaskPriority } from '@/types/task'
+import { useI18n } from 'vue-i18n'
+import { useToast } from '@/composables/useToast'
 
-defineEmits(['editTask'])
+defineEmits(['editTask', 'addTask'])
 
 const taskStore = useTaskStore()
-const { t, locale } = useI18n() // Obtén la función de traducción y la locale actual
+const { t } = useI18n()
+const { showErrorToast } = useToast()
 
-// Estado para el filtrado
 const filterStatus = ref<TaskStatus | ''>('')
-
-// Estado para el ordenamiento
+const filterPriority = ref<TaskPriority | ''>('')
 const sortBy = ref<keyof Task>('dueDate')
 const sortDirection = ref<'asc' | 'desc'>('asc')
+const fileInput = ref<HTMLInputElement | null>(null)
+const importLoading = ref(false)
 
-// Función para cambiar el idioma
-const changeLanguage = (lang: string) => {
-  locale.value = lang
-}
+// --- Paginación ---
+const currentPage = ref(1)
+const itemsPerPage = ref(5) // Valor por defecto
+const itemsPerPageOptions = [5, 10, 20, 50]
 
-// Computed property para filtrar tareas
-const filteredTasks = computed(() => {
-  if (!filterStatus.value) {
-    return taskStore.allTasks
-  }
-  return taskStore.allTasks.filter((task) => task.status === filterStatus.value)
+// Watcher para resetear la página actual cuando los filtros/ordenamiento cambian
+watch([filterStatus, filterPriority, sortBy, sortDirection], () => {
+  currentPage.value = 1
+})
+// Watcher para resetear la página actual cuando el número de elementos por página cambia
+watch(itemsPerPage, () => {
+  currentPage.value = 1
 })
 
-// Computed property para ordenar y luego filtrar
+const priorityOrder: Record<TaskPriority, number> = {
+  Urgente: 1,
+  Alta: 2,
+  Media: 3,
+  Baja: 4,
+}
+
+const setSortBy = (field: keyof Task) => {
+  if (sortBy.value === field) {
+    sortDirection.value = sortDirection.value === 'asc' ? 'desc' : 'asc'
+  } else {
+    sortBy.value = field
+    sortDirection.value = field === 'priority' || field === 'dueDate' ? 'asc' : 'asc'
+  }
+}
+
+const filteredTasks = computed(() => {
+  let tasksToFilter = taskStore.allTasks
+  if (filterStatus.value) {
+    tasksToFilter = tasksToFilter.filter((task) => task.status === filterStatus.value)
+  }
+  if (filterPriority.value) {
+    tasksToFilter = tasksToFilter.filter((task) => task.priority === filterPriority.value)
+  }
+  return tasksToFilter
+})
+
 const filteredAndSortedTasks = computed(() => {
   const tasksToSort = [...filteredTasks.value]
-
   return tasksToSort.sort((a, b) => {
     let result = 0
     if (sortBy.value === 'dueDate') {
       result = new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
     } else if (sortBy.value === 'status') {
-      // Es crucial que los estatus en el objeto `statusOrder` coincidan con los valores literales
-      // de `TaskStatus` y con las claves de traducción si se usan en el template.
-      // Aquí usamos los valores literales para la lógica de ordenamiento.
       const statusOrder: Record<TaskStatus, number> = {
         Pendiente: 1,
         'En progreso': 2,
         Completada: 3,
       }
       result = statusOrder[a.status] - statusOrder[b.status]
+    } else if (sortBy.value === 'priority') {
+      result = priorityOrder[a.priority] - priorityOrder[b.priority]
     } else if (sortBy.value === 'title') {
       result = a.title.localeCompare(b.title)
     }
-
     return sortDirection.value === 'asc' ? result : -result
   })
 })
 
-// Función para cambiar la dirección del ordenamiento
-const toggleSortDirection = () => {
-  sortDirection.value = sortDirection.value === 'asc' ? 'desc' : 'asc'
+// NUEVO: Tareas paginadas
+const paginatedTasks = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value
+  const end = start + itemsPerPage.value
+  return filteredAndSortedTasks.value.slice(start, end)
+})
+
+// NUEVO: Calcular el número total de páginas
+const totalPages = computed(() => {
+  return Math.ceil(filteredAndSortedTasks.value.length / itemsPerPage.value)
+})
+
+const handleFileUpload = async (event: Event) => {
+  const target = event.target as HTMLInputElement
+  const files = target.files
+  if (!files || files.length === 0) {
+    return
+  }
+
+  const file = files[0]
+  const reader = new FileReader()
+
+  reader.onloadstart = () => {
+    importLoading.value = true
+  }
+
+  reader.onload = async (e) => {
+    try {
+      const content = e.target?.result as string
+      const parsedTasks: Omit<Task, 'id'>[] = JSON.parse(content)
+
+      if (
+        !Array.isArray(parsedTasks) ||
+        !parsedTasks.every(
+          (task) =>
+            typeof task.title === 'string' &&
+            typeof task.dueDate === 'string' &&
+            ['Baja', 'Media', 'Alta', 'Urgente'].includes(task.priority as TaskPriority) &&
+            ['Pendiente', 'En progreso', 'Completada'].includes(task.status as TaskStatus),
+        )
+      ) {
+        showErrorToast(t('taskList.importErrorFormat'))
+        return
+      }
+
+      await taskStore.importTasksFromFile(parsedTasks)
+    } catch (parseError) {
+      console.error('Error parsing JSON file:', parseError)
+      showErrorToast(t('taskList.importErrorParsing'))
+    } finally {
+      importLoading.value = false
+      if (fileInput.value) {
+        fileInput.value.value = ''
+      }
+    }
+  }
+
+  reader.onerror = () => {
+    importLoading.value = false
+    showErrorToast(t('taskList.importErrorReading'))
+  }
+
+  reader.readAsText(file)
 }
 
-// Función para confirmar y eliminar tarea
 const confirmDelete = (id: string) => {
-  // Usamos $t para traducir el mensaje de confirmación
-  if (confirm(t('taskList.confirmDelete'))) {
+  if (confirm(t('global.confirmDelete'))) {
     taskStore.deleteTask(id)
   }
 }
@@ -172,47 +349,22 @@ const confirmDelete = (id: string) => {
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   max-width: 900px;
+  width: 100%;
   margin: 20px auto;
-
-  &__language-switcher {
-    display: flex;
-    justify-content: flex-end;
-    margin-bottom: 15px;
-    gap: 10px;
-
-    button {
-      padding: 8px 15px;
-      border: 1px solid #007bff;
-      border-radius: 5px;
-      background-color: transparent;
-      color: #007bff;
-      cursor: pointer;
-      transition: all 0.3s ease;
-
-      &.active {
-        background-color: #007bff;
-        color: white;
-        font-weight: bold;
-      }
-
-      &:hover:not(.active) {
-        background-color: #e6f2ff;
-      }
-    }
-  }
 
   &__controls {
     display: flex;
-    gap: 20px;
+    align-items: flex-end;
     margin-bottom: 20px;
     flex-wrap: wrap;
-    align-items: flex-end;
+    gap: 20px;
   }
 
   &__filter-group {
     display: flex;
     flex-direction: column;
     gap: 5px;
+    flex-grow: 1;
   }
 
   &__label {
@@ -227,22 +379,101 @@ const confirmDelete = (id: string) => {
     border: 1px solid #ccc;
     border-radius: 4px;
     font-size: 1rem;
-    min-width: 150px;
+    width: 100%;
+    appearance: none;
+    background-color: #fff;
+    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23666%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13%205.4l-117.4%20117.4-117.4-117.4a17.6%2017.6%200%200%200-25%200%2017.6%2017.6%200%200%200%200%2025l129.9%20129.9a17.6%2017.6%200%200%200%2025%200l129.9-129.9a17.6%2017.6%200%200%000-25z%22%2F%3E%3C%2Fsvg%3E');
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 10px;
+    padding-right: 30px;
+    cursor: pointer;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+    transition:
+      border-color 0.2s ease,
+      box-shadow 0.2s ease;
+
+    &:focus {
+      outline: none;
+      border-color: #007bff;
+      box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+    }
   }
 
-  &__sort-button {
-    padding: 8px 15px;
+  &__add-button {
+    padding: 10px 20px;
     background-color: #007bff;
     color: white;
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
     cursor: pointer;
-    font-size: 0.9rem;
-    transition: background-color 0.2s ease-in-out;
-    margin-left: 10px;
+    font-size: 1rem;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+    align-self: flex-end;
+    height: 38px;
+    box-sizing: border-box;
+  }
+
+  &__import-group {
+    position: relative;
+    display: inline-block;
+    align-self: flex-end;
+    height: 38px;
+  }
+
+  &__import-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 20px;
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+    height: 100%;
+    box-sizing: border-box;
 
     &:hover {
-      background-color: #0056b3;
+      background-color: #5a6268;
+    }
+
+    &--loading {
+      background-color: #888;
+      cursor: not-allowed;
+    }
+  }
+
+  &__file-input {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  &__message {
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+    font-weight: bold;
+    text-align: center;
+
+    &--loading {
+      background-color: #e7f3ff;
+      color: #007bff;
+    }
+
+    &--error {
+      background-color: #f8d7da;
+      color: #dc3545;
+      border: 1px solid #f5c6cb;
     }
   }
 
@@ -250,23 +481,80 @@ const confirmDelete = (id: string) => {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-spacing: 0;
+    padding: 0;
   }
 
   &__header {
     background-color: #e2e6ea;
   }
 
-  &__header-row {
-    border-bottom: 2px solid #ccc;
+  &__header-cell,
+  &__cell {
+    padding: 10px 15px;
+    text-align: left;
+    vertical-align: middle;
+    color: #555;
+    white-space: nowrap;
+    box-sizing: border-box;
+
+    &--title {
+      min-width: 150px;
+    }
+    &--due-date {
+      min-width: 120px;
+    }
+    &--priority {
+      min-width: 100px;
+      font-weight: bold;
+      &[data-priority='Baja'] {
+        color: #6c757d;
+      }
+      &[data-priority='Media'] {
+        color: #007bff;
+      }
+      &[data-priority='Alta'] {
+        color: #ffc107;
+      }
+      &[data-priority='Urgente'] {
+        color: #dc3545;
+      }
+    }
+    &--status {
+      min-width: 120px;
+    }
+    &--actions {
+      min-width: 200px;
+      text-align: center;
+    }
   }
 
   &__header-cell {
-    padding: 12px 15px;
-    text-align: left;
     font-weight: bold;
     color: #333;
     text-transform: uppercase;
     font-size: 0.9rem;
+
+    &--sortable {
+      cursor: pointer;
+      user-select: none;
+      position: relative;
+
+      &:hover {
+        background-color: #d1d8e0;
+      }
+    }
+  }
+
+  &__sort-icon {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.7rem;
+    color: #666;
   }
 
   &__row {
@@ -281,11 +569,14 @@ const confirmDelete = (id: string) => {
     }
   }
 
-  &__cell {
-    padding: 10px 15px;
-    vertical-align: middle;
-    color: #555;
+  &__cell--truncate {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 250px;
+  }
 
+  &__cell {
     &--status {
       &[data-status='Pendiente'] {
         color: orange;
@@ -349,6 +640,108 @@ const confirmDelete = (id: string) => {
     &-cell {
       padding: 20px;
     }
+  }
+
+  &__pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+    padding: 10px 0;
+    border-top: 1px solid #eee;
+    flex-wrap: wrap;
+    gap: 15px;
+  }
+
+  &__items-per-page {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  &__page-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  &__pagination-button {
+    padding: 8px 15px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+
+    &:disabled {
+      background-color: #a0a0a0;
+      cursor: not-allowed;
+    }
+
+    &:hover:not(:disabled) {
+      background-color: #0056b3;
+    }
+  }
+
+  &__page-info {
+    font-weight: bold;
+    color: #555;
+    white-space: nowrap;
+  }
+}
+
+.task-list-item-enter-active,
+.task-list-item-leave-active {
+  transition: all 0.5s ease;
+}
+
+.task-list-item-enter-from,
+.task-list-item-leave-to {
+  opacity: 0;
+  transform: translateX(30px);
+}
+
+.task-list-item-leave-active {
+  position: absolute;
+  width: 100%;
+}
+
+.task-list-item-move {
+  transition: transform 0.5s ease;
+}
+
+.task-list__loading {
+  text-align: center;
+  color: #007bff;
+  font-style: italic;
+  padding: 20px;
+
+  &-cell {
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    font-weight: bold;
+  }
+}
+.task-list__loader {
+  border: 3px solid rgba(0, 123, 255, 0.3);
+  border-top: 3px solid #007bff;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
   }
 }
 </style>

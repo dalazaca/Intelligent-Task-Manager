@@ -10,6 +10,6 @@ const pinia = createPinia()
 
 app.use(pinia)
 app.use(router)
-app.use(i18n) // ¡Añade esto para usar vue-i18n!
+app.use(i18n)
 
 app.mount('#app')
