@@ -4,7 +4,7 @@ import TasksView from '@/views/TasksView.vue'
 import TaskDetailView from '@/views/TaskDetailView.vue'
 
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHistory('/intelligent-task-manager/'),
   routes: [
     {
       path: '/',
