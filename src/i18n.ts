@@ -8,9 +8,9 @@ import itMessages from '@/locales/it.json'
 // Define los idiomas disponibles, sus nombres completos y la ruta a su bandera
 export const availableLocales = [
   // Usa import.meta.env.BASE_URL para que Vite inyecte la base correcta
-  { code: 'es', name: 'Español', flag: `/flags/es.svg` },
-  { code: 'en', name: 'English', flag: `/flags/en.svg` },
-  { code: 'it', name: 'Italiano', flag: `/flags/it.svg` },
+  { code: 'es', name: 'Español', flag: `${import.meta.env.BASE_URL}flags/es.svg` },
+  { code: 'en', name: 'English', flag: `${import.meta.env.BASE_URL}flags/en.svg` },
+  { code: 'it', name: 'Italiano', flag: `${import.meta.env.BASE_URL}flags/it.svg` },
 ]
 
 const i18n = createI18n({
