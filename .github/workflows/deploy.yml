@@ -9,11 +9,10 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
-    # ¡NUEVA SECCIÓN DE PERMISOS!
     permissions:
-      contents: write # Permite que el workflow escriba en el repositorio (para crear/actualizar la rama gh-pages)
-      pages: write # Permite al workflow interactuar con la API de Pages (requerido para despliegues de Pages)
-      id-token: write # Necesario para la autenticación en OIDC, que algunas acciones de Pages podrían usar internamente
+      contents: write
+      pages: write
+      id-token: write
 
     steps:
       - name: Checkout repository
@@ -28,7 +27,11 @@ jobs:
         run: npm install
 
       - name: Build project
-        run: npm run build
+        run: npm npm run build # ¡Asegúrate de que este comando sea 'npm run build', no 'npm npm run build'!
+
+      # ¡NUEVO PASO! Crear el archivo .nojekyll
+      - name: Create .nojekyll file
+        run: touch ./docs/.nojekyll # Crea un archivo vacío en el directorio de publicación
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
