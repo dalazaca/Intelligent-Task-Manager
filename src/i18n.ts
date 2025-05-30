@@ -7,9 +7,9 @@ import itMessages from '@/locales/it.json'
 
 // Define los idiomas disponibles, sus nombres completos y la ruta a su bandera
 export const availableLocales = [
-  { code: 'es', name: 'Español', flag: '/flags/es.svg' },
-  { code: 'en', name: 'English', flag: '/flags/us.svg' },
-  { code: 'it', name: 'Italiano', flag: '/flags/it.svg' },
+  { code: 'es', name: 'Español', flag: '@/assets/flags/es.svg' },
+  { code: 'en', name: 'English', flag: '@/assets/flags/us.svg' },
+  { code: 'it', name: 'Italiano', flag: '@/assets/flags/it.svg' },
 ]
 
 const i18n = createI18n({
