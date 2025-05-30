@@ -8,6 +8,9 @@ import i18n from './i18n' // Importa tu configuración de i18n
 const app = createApp(App)
 const pinia = createPinia()
 
+console.log(import.meta.env.BASE_URL)
+console.log(process.env.NODE_ENV)
+
 app.use(pinia)
 app.use(router)
 app.use(i18n)
