@@ -16,10 +16,6 @@ const router = createRouter({
       name: 'task-detail',
       component: TaskDetailView,
     },
-    {
-      path: '/:catchAll(.*)',
-      redirect: '/',
-    },
   ],
 })
 
