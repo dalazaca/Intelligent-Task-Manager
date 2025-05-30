@@ -40,7 +40,7 @@ Para poner en marcha el proyecto en tu entorno local:
 1.  **Clona el repositorio:**
     ```bash
     git clone [URL_DEL_REPOSITORIO]
-    cd gestor-de-tareas
+    cd intelligent-task-manager
     ```
 2.  **Instala las dependencias:**
     ```bash
@@ -59,12 +59,3 @@ Para poner en marcha el proyecto en tu entorno local:
     pnpm dev
     ```
     La aplicación estará disponible en `http://localhost:5173` (o el puerto que Vite te indique).
-
-### Archivos de Prueba para Importación
-
-Para probar la funcionalidad de importación de tareas, puedes usar los siguientes archivos JSON de ejemplo:
-
-- **`tasks_valid.json`**: Contiene 25 registros de tareas válidas para una importación exitosa.
-- **`tasks_erroneous.json`**: Contiene registros con errores de formato/estructura para probar el manejo de errores de importación.
-
-Asegúrate de copiar el contenido de estos ejemplos en archivos `.json` en tu máquina local.
