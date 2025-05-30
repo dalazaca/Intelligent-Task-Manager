@@ -2,7 +2,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { Task } from '@/types/task'
-import { fetchTasks, createTask, changeTask, removeTask, createManyTasks } from '@/api/tasks' // Importar createManyTasks
+import { fetchTasks, createTask, changeTask, removeTask, createManyTasks } from '@/api/tasks'
 import { useToast } from '@/composables/useToast'
 
 export const useTaskStore = defineStore('tasks', () => {
@@ -31,9 +31,13 @@ export const useTaskStore = defineStore('tasks', () => {
         showErrorToast(error.value)
         console.error('Error loading tasks:', response.error)
       }
-    } catch (e) {
-      error.value = 'Error de conexión al cargar tareas.'
-      showErrorToast(error.value)
+    } catch (e: unknown) {
+      let errorMessage = 'Error de conexión al cargar tareas.'
+      if (e instanceof Error) {
+        errorMessage = e.message
+      }
+      error.value = errorMessage
+      showErrorToast(errorMessage)
       console.error('Network or unexpected error loading tasks:', e)
     } finally {
       loading.value = false
@@ -53,32 +57,39 @@ export const useTaskStore = defineStore('tasks', () => {
         showErrorToast(error.value)
         console.error('Error adding task:', response.error)
       }
-    } catch (e) {
-      error.value = 'Error de conexión al añadir la tarea.'
-      showErrorToast(e.message || 'Error inesperado al añadir la tarea.')
+    } catch (e: unknown) {
+      let errorMessage = 'Error de conexión al añadir la tarea.'
+      if (e instanceof Error) {
+        errorMessage = e.message
+      }
+      error.value = errorMessage
+      showErrorToast(errorMessage)
       console.error('Network or unexpected error adding task:', e)
     } finally {
       loading.value = false
     }
   }
 
-  // NUEVA ACCIÓN: importTasksFromFile
   const importTasksFromFile = async (importedTasks: Omit<Task, 'id'>[]) => {
     loading.value = true
     error.value = null
     try {
       const response = await createManyTasks(importedTasks)
       if (response.success && response.data) {
-        tasks.value.push(...response.data) // Añadir todas las tareas importadas
+        tasks.value.push(...response.data)
         showSuccessToast(`${response.data.length} tarea(s) importada(s) exitosamente.`)
       } else {
         error.value = response.error || 'Fallo al importar las tareas.'
         showErrorToast(error.value)
         console.error('Error importing tasks:', response.error)
       }
-    } catch (e) {
-      error.value = 'Error de conexión al importar tareas.'
-      showErrorToast(e.message || 'Error inesperado al importar tareas.')
+    } catch (e: unknown) {
+      let errorMessage = 'Error de conexión al importar tareas.'
+      if (e instanceof Error) {
+        errorMessage = e.message
+      }
+      error.value = errorMessage
+      showErrorToast(errorMessage)
       console.error('Network or unexpected error importing tasks:', e)
     } finally {
       loading.value = false
@@ -101,9 +112,13 @@ export const useTaskStore = defineStore('tasks', () => {
         showErrorToast(error.value)
         console.error('Error updating task:', response.error)
       }
-    } catch (e) {
-      error.value = 'Error de conexión al actualizar la tarea.'
-      showErrorToast(e.message || 'Error inesperado al actualizar la tarea.')
+    } catch (e: unknown) {
+      let errorMessage = 'Error de conexión al actualizar la tarea.'
+      if (e instanceof Error) {
+        errorMessage = e.message
+      }
+      error.value = errorMessage
+      showErrorToast(errorMessage)
       console.error('Network or unexpected error updating task:', e)
     } finally {
       loading.value = false
@@ -123,9 +138,13 @@ export const useTaskStore = defineStore('tasks', () => {
         showErrorToast(error.value)
         console.error('Error deleting task:', response.error)
       }
-    } catch (e) {
-      error.value = 'Error de conexión al eliminar la tarea.'
-      showErrorToast(e.message || 'Error inesperado al eliminar la tarea.')
+    } catch (e: unknown) {
+      let errorMessage = 'Error de conexión al eliminar la tarea.'
+      if (e instanceof Error) {
+        errorMessage = e.message
+      }
+      error.value = errorMessage
+      showErrorToast(errorMessage) // Usamos el errorMessage seguro
       console.error('Network or unexpected error deleting task:', e)
     } finally {
       loading.value = false
@@ -150,6 +169,6 @@ export const useTaskStore = defineStore('tasks', () => {
     updateTask,
     deleteTask,
     setEditingTask,
-    importTasksFromFile, // Exportar la nueva acción
+    importTasksFromFile,
   }
 })
