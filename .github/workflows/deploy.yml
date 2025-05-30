@@ -7,27 +7,33 @@ on:
 
 jobs:
   build-and-deploy:
-    runs-on: ubuntu-latest # Ejecuta el job en un runner Ubuntu
+    runs-on: ubuntu-latest
+
+    # ¡NUEVA SECCIÓN DE PERMISOS!
+    permissions:
+      contents: write # Permite que el workflow escriba en el repositorio (para crear/actualizar la rama gh-pages)
+      pages: write # Permite al workflow interactuar con la API de Pages (requerido para despliegues de Pages)
+      id-token: write # Necesario para la autenticación en OIDC, que algunas acciones de Pages podrían usar internamente
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4 # Clona tu repositorio
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20' # Usa una versión de Node.js compatible con tu proyecto
+          node-version: '20'
 
       - name: Install dependencies
-        run: npm install # Instala las dependencias del proyecto
+        run: npm install
 
       - name: Build project
-        run: npm run build # Ejecuta el comando de construcción de Vite (genera la carpeta 'docs' o 'dist')
+        run: npm run build
 
       - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3 # Acción de terceros para desplegar en gh-pages
+        uses: peaceiris/actions-gh-pages@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }} # Token de GitHub, automáticamente disponible
-          publish_dir: ./docs # Directorio que se va a desplegar (debe coincidir con outDir en vite.config.ts)
-          publish_branch: gh-pages # Rama donde se desplegará la aplicación (se creará si no existe)
-          force_orphan: true # Crea una rama gh-pages limpia si ya existe
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs
+          publish_branch: gh-pages
+          force_orphan: true
